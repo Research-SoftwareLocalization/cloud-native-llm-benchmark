@@ -2,16 +2,29 @@ import os
 import subprocess
 
 def main():
-    os.makedirs("data/baseline_gpt4o", exist_ok=True)
+    system_name = "baseline_gpt4o"
+    model_id = "gpt-4o-mini"  # Cost-optimized commercial baseline
+    os.makedirs(f"data/{system_name}", exist_ok=True)
+    
+    # 1. Run translation batch
     cmd = [
         "python", "scripts/translate_llm.py",
-        "--system_folder", "baseline_gpt4o",
-        "--model_id", "gpt-4o-2024-11-20",
+        "--system_folder", system_name,
+        "--model_id", model_id,
         "--api_key_env", "OPENAI_API_KEY"
     ]
-    print("Running GPT-4o translation batch...")
+    print(f"Running {system_name} ({model_id}) translation batch...")
     subprocess.run(cmd, check=True)
-    print("GPT-4o translations complete.")
+    
+    # 2. Log run into audit trail
+    log_cmd = [
+        "python", "scripts/log_experiment_run.py",
+        "--system", system_name,
+        "--model_id", model_id,
+        "--notes", "Zero-shot localization run using gpt-4o-mini"
+    ]
+    subprocess.run(log_cmd, check=True)
+    print(f"{system_name} execution successfully logged.")
 
 if __name__ == "__main__":
     main()
