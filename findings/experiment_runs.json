@@ -1,0 +1,36 @@
+[
+  {
+    "system": "baseline_gpt4o",
+    "model_id": "gpt-4o-mini",
+    "timestamp_utc": "2026-10-18T09:42:32+00:00",
+    "hardware": {
+      "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python_version": "3.13.16",
+      "gpu_available": false,
+      "gpu_device": "None (CPU Runtime)"
+    },
+    "notes": "Parallel zero-shot localization using GPT-4o-mini with 4 workers"
+  },
+  {
+    "system": "baseline_gpt4o",
+    "model_id": "gpt-4o-mini",
+    "timestamp_utc": "2026-10-18T09:46:57+00:00",
+    "hardware": {
+      "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python_version": "3.13.16",
+      "gpu_available": false,
+      "gpu_device": "None (CPU Runtime)"
+    },
+    "notes": "Parallel zero-shot localization using GPT-4o-mini with 4 workers"
+  },
+  {
+    "audit_event": "Pre-flight Open-Weights Suite Verification",
+    "timestamp_utc": "2026-10-19T05:11:51+00:00",
+    "source_corpus_sha256": "464d65825b81856c4cb600638fca87c3b3abc1692239679e1ec093677bfe281f",
+    "active_infrastructure": "Google Colab (L4 GPU Runtime)",
+    "pending_models": [
+      "Qwen/Qwen2.5-7B-Instruct (baseline_qwen_7b)",
+      "mistralai/Mistral-Nemo-Instruct-2407 (baseline_mistral_nemo)"
+    ]
+  }
+]

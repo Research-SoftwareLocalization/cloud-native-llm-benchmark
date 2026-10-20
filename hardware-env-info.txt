@@ -1,0 +1,31 @@
+=== Experimental Hardware & Runtime Environment Audit Trail ===
+
+[Run Entry 1: Commercial API Baseline]
+Target Model / Suite: OpenAI GPT-4o-mini (baseline_gpt4o)
+Execution Infrastructure: Cloud Notebook (CPU Runtime)
+Execution Date: 2026-10-17
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.16
+PyTorch Version: 2.11.0+cpu
+GPU Available: False
+GPU Device: None (CPU Runtime)
+
+[Run Entry 2: Open-Weights Frontier Baseline]
+Target Model / Suite: Google Gemma 2 9B (baseline_gemma_9b)
+Execution Infrastructure: Google Colab (A100/L4 GPU Runtime)
+Execution Date: 2026-10-18
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.15
+PyTorch Version: 2.11.0+cu130
+GPU Available: True
+GPU Device: NVIDIA A100-SXM4-80GB (or L4 Accelerator)
+
+[Run Entry 3: Open-Weights Frontier Suites (Qwen-2.5-7B & Mistral-Nemo)]
+Target Model / Suite: Qwen-2.5-7B-Instruct & Mistral-Nemo-Instruct (baseline_qwen_7b, baseline_mistral_nemo)
+Execution Infrastructure: Google Colab (L4 GPU Runtime)
+Execution Date: 2026-10-19
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.15
+PyTorch Version: 2.11.0+cu130
+GPU Available: True
+GPU Device: NVIDIA L4
