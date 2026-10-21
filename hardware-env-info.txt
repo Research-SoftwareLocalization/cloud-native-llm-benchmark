@@ -1,31 +1,69 @@
-=== Experimental Hardware & Runtime Environment Audit Trail ===
+=== HARDWARE ENVIRONMENT REPORT ===
+Generated on: 2026-10-21
 
-[Run Entry 1: Commercial API Baseline]
-Target Model / Suite: OpenAI GPT-4o-mini (baseline_gpt4o)
-Execution Infrastructure: Cloud Notebook (CPU Runtime)
-Execution Date: 2026-10-17
-Platform: Linux-6.6.122+-x86_64-with-glibc2.39
-Python Version: 3.13.16
-PyTorch Version: 2.11.0+cpu
-GPU Available: False
-GPU Device: None (CPU Runtime)
+--- GPU Info ---
+Wed Oct 21 01:54:02 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.82.07              Driver Version: 580.82.07      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA L4                      Off |   00000000:00:03.0 Off |                    0 |
+| N/A   41C    P8             16W /   72W |       3MiB /  23034MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
 
-[Run Entry 2: Open-Weights Frontier Baseline]
-Target Model / Suite: Google Gemma 2 9B (baseline_gemma_9b)
-Execution Infrastructure: Google Colab (A100/L4 GPU Runtime)
-Execution Date: 2026-10-18
-Platform: Linux-6.6.122+-x86_64-with-glibc2.39
-Python Version: 3.13.15
-PyTorch Version: 2.11.0+cu130
-GPU Available: True
-GPU Device: NVIDIA A100-SXM4-80GB (or L4 Accelerator)
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
 
-[Run Entry 3: Open-Weights Frontier Suites (Qwen-2.5-7B & Mistral-Nemo)]
-Target Model / Suite: Qwen-2.5-7B-Instruct & Mistral-Nemo-Instruct (baseline_qwen_7b, baseline_mistral_nemo)
-Execution Infrastructure: Google Colab (L4 GPU Runtime)
-Execution Date: 2026-10-19
-Platform: Linux-6.6.122+-x86_64-with-glibc2.39
-Python Version: 3.13.15
-PyTorch Version: 2.11.0+cu130
-GPU Available: True
-GPU Device: NVIDIA L4
+
+--- CPU / System Info ---
+Architecture:                            x86_64
+CPU op-mode(s):                          32-bit, 64-bit
+Address sizes:                           46 bits physical, 48 bits virtual
+Byte Order:                              Little Endian
+CPU(s):                                  12
+On-line CPU(s) list:                     0-11
+Vendor ID:                               GenuineIntel
+Model name:                              Intel(R) Xeon(R) CPU @ 2.20GHz
+CPU family:                              6
+Model:                                   85
+Thread(s) per core:                      2
+Core(s) per socket:                      6
+Socket(s):                               1
+Stepping:                                7
+BogoMIPS:                                4400.41
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp ibrs_enhanced fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm mpx avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves arat avx512_vnni md_clear arch_capabilities
+Hypervisor vendor:                       KVM
+Virtualization type:                     full
+L1d cache:                               192 KiB (6 instances)
+L1i cache:                               192 KiB (6 instances)
+L2 cache:                                6 MiB (6 instances)
+L3 cache:                                38.5 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-11
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Indirect target selection: Vulnerable
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Vulnerable
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Vulnerable
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Vulnerable
+Vulnerability Spectre v1:                Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+Vulnerability Spectre v2:                Vulnerable; IBPB: disabled; STIBP: disabled; PBRSB-eIBRS: Vulnerable; BHI: Vulnerable
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Vulnerable
+Vulnerability Vmscape:                   Not affected
+
