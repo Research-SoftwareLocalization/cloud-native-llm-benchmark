@@ -21,7 +21,6 @@ LANGUAGE_MAP = {
     "zh": "Simplified Chinese",
 }
 
-# Unicode Script Blocks
 ARABIC   = r"\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF"
 CYRILLIC = r"\u0400-\u04FF"
 CJK      = r"\u4E00-\u9FFF"
@@ -35,32 +34,29 @@ TAMIL     = r"\u0B80-\u0BFF"
 TELUGU    = r"\u0C00-\u0C7F"
 ALL_INDIC = f"{DEV_HI_MR}{BENGALI}{GURMUKHI}{TAMIL}{TELUGU}"
 
-# Universal negative regex constraints across all 12 languages
 FORBIDDEN_SCRIPTS = {
-    # Latin group: strictly reject Arabic, Cyrillic, CJK, Hangul, Indic
     "es": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{KANA}{ALL_INDIC}]"),
     "fr": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{KANA}{ALL_INDIC}]"),
     "de": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{KANA}{ALL_INDIC}]"),
-
-    # Arabic: reject CJK, Hangul, Cyrillic, Indic
     "ar": re.compile(f"[{CJK}{HANGUL}{KANA}{CYRILLIC}{ALL_INDIC}]"),
-
-    # Indic languages: reject non-Indic scripts and cross-Indic script bleed
     "hi": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{BENGALI}{GURMUKHI}{TAMIL}{TELUGU}]"),
     "mr": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{BENGALI}{GURMUKHI}{TAMIL}{TELUGU}]"),
     "bn": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{DEV_HI_MR}{GURMUKHI}{TAMIL}{TELUGU}]"),
     "pa": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{DEV_HI_MR}{BENGALI}{TAMIL}{TELUGU}]"),
     "ta": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{DEV_HI_MR}{BENGALI}{GURMUKHI}{TELUGU}]"),
     "te": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{DEV_HI_MR}{BENGALI}{GURMUKHI}{TAMIL}]"),
-
-    # East Asian languages: reject Arabic, Cyrillic, Indic, and cross-Asian bleed
     "zh": re.compile(f"[{ARABIC}{CYRILLIC}{HANGUL}{KANA}{ALL_INDIC}]"),
     "ja": re.compile(f"[{ARABIC}{CYRILLIC}{HANGUL}{ALL_INDIC}]"),
 }
 
 LANGUAGE_NAMES = ["ar", "bn", "de", "es", "fr", "hi", "ja", "mr", "pa", "ta", "te", "zh"]
+
 OPEN_WEIGHTS_MODELS = [
-    {"system_folder": "baseline_qwen_7b", "model_id": "Qwen/Qwen2.5-7B-Instruct", "notes": "Hardened Qwen 2.5 7B"}
+    {
+        "system_folder": "baseline_mistral_nemo",
+        "model_id": "mistralai/Mistral-Nemo-Instruct-2407",
+        "notes": "Parallel zero-shot localization using Mistral-Nemo-Instruct-2407 on A100"
+    }
 ]
 
 def git_push_language(system_name, lang):
@@ -148,12 +144,10 @@ def translate_corpus(model_id, system_name):
                         if (translated.startswith('"') and translated.endswith('"')) or (translated.startswith("'") and translated.endswith("'")):
                             translated = translated[1:-1].strip()
 
-                        # In-loop Reflexive Critique: Reject foreign script contamination
                         if bad_script_pattern and bad_script_pattern.search(translated):
                             payload["messages"][0]["content"] += f" REJECTED: Output contained foreign characters. Output strictly in {target_name} script."
                             continue
 
-                        # Anti-conversational filler check
                         if any(p in translated.lower() for p in ["i'm ready", "i can't", "please provide", "as an ai"]):
                             translated = line
 
@@ -165,9 +159,6 @@ def translate_corpus(model_id, system_name):
 
             if not success:
                 translated_lines.append(line)
-
-            if line_idx % 1000 == 0:
-                print(f"   Progress: {line_idx}/{len(lines)} lines translated...", flush=True)
 
         client.close()
 
