@@ -207,13 +207,18 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
             trace_record["repair_prompt"] = sys_prompt
 
             try:
-                response = client.chat.completions.create(
-                    model=model_id,
-                    messages=[
+                if "gemma" in model_id.lower():
+                    messages = [{"role": "user", "content": sys_prompt + "\n\n" + usr_prompt}]
+                else:
+                    messages = [
                         {"role": "system", "content": sys_prompt},
                         {"role": "user", "content": usr_prompt}
-                    ],
-                    temperature=0.0
+                    ]
+                response = client.chat.completions.create(
+                    model=model_id,
+                    messages=messages,
+                    temperature=0.0,
+                    max_tokens=256
                 )
                 corrected_hyp = response.choices[0].message.content.strip().replace("\n", " ")
                 post_issues = validate_single_line(src, corrected_hyp, lang_code)
