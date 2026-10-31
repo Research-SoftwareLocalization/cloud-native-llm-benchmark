@@ -1,71 +1,71 @@
-# Cloud-Native Software Localization: Multi-Model Quality Audit
+# Cloud-Native Software Localization: Comprehensive Quality Audit
 
-**Audit Snapshot:** `2026-10-31 11:33 UTC`  
-**Evaluated Models (5):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b`  
+**Audit Snapshot:** `2026-10-31 11:40 UTC`  
+**Audited Model Suites (5):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b`  
 **Corpus Size per Language:** `10,228` strings  
-**Total Unique Defective Records:** `14215`  
+**Total Flagged Unique Lines:** `46229`  
 
-### Empirical Failure Mode Breakdown
+### Empirical Failure Mode & Invariant Breakdown
 
-| Model Suite | Lang | Total Lines | Script Contamination | Broken Placeholders | Conversational Chatter | Total Defective | Defect Rate (%) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `baseline_gemma_9b` | `ar` | 10228 | 55 | 7 | 0 | **62** | **0.61%** |
-| `baseline_gemma_9b` | `bn` | 10228 | 51 | 3 | 0 | **54** | **0.53%** |
-| `baseline_gemma_9b` | `de` | 10228 | 2 | 5 | 1 | **8** | **0.08%** |
-| `baseline_gemma_9b` | `es` | 10228 | 0 | 4 | 0 | **4** | **0.04%** |
-| `baseline_gemma_9b` | `fr` | 10228 | 0 | 3 | 0 | **3** | **0.03%** |
-| `baseline_gemma_9b` | `hi` | 10228 | 6 | 2 | 0 | **8** | **0.08%** |
-| `baseline_gemma_9b` | `ja` | 10228 | 8 | 2 | 0 | **10** | **0.10%** |
-| `baseline_gemma_9b` | `mr` | 10228 | 78 | 3 | 0 | **81** | **0.79%** |
-| `baseline_gemma_9b` | `pa` | 10228 | 473 | 6 | 0 | **478** | **4.67%** |
-| `baseline_gemma_9b` | `ta` | 10228 | 171 | 2 | 0 | **173** | **1.69%** |
-| `baseline_gemma_9b` | `te` | 10228 | 373 | 1 | 0 | **374** | **3.66%** |
-| `baseline_gemma_9b` | `zh` | 10228 | 9 | 5 | 0 | **14** | **0.14%** |
-| `baseline_gpt4o` | `ar` | 10228 | 0 | 1 | 0 | **1** | **0.01%** |
-| `baseline_gpt4o` | `bn` | 10228 | 6 | 0 | 0 | **6** | **0.06%** |
-| `baseline_gpt4o` | `de` | 10228 | 0 | 0 | 1 | **1** | **0.01%** |
-| `baseline_gpt4o` | `es` | 10228 | 0 | 0 | 0 | **0** | **0.00%** |
-| `baseline_gpt4o` | `fr` | 10228 | 0 | 1 | 0 | **1** | **0.01%** |
-| `baseline_gpt4o` | `hi` | 10228 | 4 | 0 | 0 | **4** | **0.04%** |
-| `baseline_gpt4o` | `ja` | 10228 | 1 | 0 | 0 | **1** | **0.01%** |
-| `baseline_gpt4o` | `mr` | 10228 | 1 | 1 | 0 | **2** | **0.02%** |
-| `baseline_gpt4o` | `pa` | 10228 | 38 | 0 | 0 | **38** | **0.37%** |
-| `baseline_gpt4o` | `ta` | 10228 | 26 | 1 | 0 | **26** | **0.25%** |
-| `baseline_gpt4o` | `te` | 10228 | 5 | 1 | 0 | **6** | **0.06%** |
-| `baseline_gpt4o` | `zh` | 10228 | 0 | 0 | 0 | **0** | **0.00%** |
-| `baseline_llama_8b` | `ar` | 10228 | 0 | 163 | 0 | **163** | **1.59%** |
-| `baseline_llama_8b` | `bn` | 10228 | 0 | 111 | 0 | **111** | **1.09%** |
-| `baseline_llama_8b` | `de` | 10228 | 0 | 107 | 1 | **107** | **1.05%** |
-| `baseline_llama_8b` | `es` | 10228 | 0 | 100 | 0 | **100** | **0.98%** |
-| `baseline_llama_8b` | `fr` | 10228 | 0 | 78 | 0 | **78** | **0.76%** |
-| `baseline_llama_8b` | `hi` | 10228 | 0 | 121 | 0 | **121** | **1.18%** |
-| `baseline_llama_8b` | `ja` | 10228 | 0 | 267 | 0 | **267** | **2.61%** |
-| `baseline_llama_8b` | `mr` | 10228 | 0 | 120 | 0 | **120** | **1.17%** |
-| `baseline_llama_8b` | `pa` | 10228 | 0 | 144 | 0 | **144** | **1.41%** |
-| `baseline_llama_8b` | `ta` | 10228 | 0 | 76 | 0 | **76** | **0.74%** |
-| `baseline_llama_8b` | `te` | 10228 | 0 | 132 | 0 | **132** | **1.29%** |
-| `baseline_llama_8b` | `zh` | 10228 | 0 | 273 | 0 | **273** | **2.67%** |
-| `baseline_mistral_nemo` | `ar` | 10228 | 0 | 1218 | 0 | **1218** | **11.91%** |
-| `baseline_mistral_nemo` | `bn` | 10228 | 0 | 632 | 0 | **632** | **6.18%** |
-| `baseline_mistral_nemo` | `de` | 10228 | 0 | 1125 | 0 | **1125** | **11.00%** |
-| `baseline_mistral_nemo` | `es` | 10228 | 0 | 1126 | 0 | **1126** | **11.01%** |
-| `baseline_mistral_nemo` | `fr` | 10228 | 0 | 1216 | 1 | **1216** | **11.89%** |
-| `baseline_mistral_nemo` | `hi` | 10228 | 0 | 511 | 0 | **511** | **5.00%** |
-| `baseline_mistral_nemo` | `ja` | 10228 | 0 | 687 | 0 | **687** | **6.72%** |
-| `baseline_mistral_nemo` | `mr` | 10228 | 0 | 827 | 0 | **827** | **8.09%** |
-| `baseline_mistral_nemo` | `pa` | 10228 | 0 | 576 | 0 | **576** | **5.63%** |
-| `baseline_mistral_nemo` | `ta` | 10228 | 0 | 657 | 0 | **657** | **6.42%** |
-| `baseline_mistral_nemo` | `te` | 10228 | 0 | 783 | 1 | **784** | **7.67%** |
-| `baseline_mistral_nemo` | `zh` | 10228 | 0 | 790 | 0 | **790** | **7.72%** |
-| `baseline_qwen_7b` | `ar` | 10228 | 0 | 30 | 0 | **30** | **0.29%** |
-| `baseline_qwen_7b` | `bn` | 10228 | 304 | 23 | 0 | **326** | **3.19%** |
-| `baseline_qwen_7b` | `de` | 10228 | 24 | 15 | 1 | **40** | **0.39%** |
-| `baseline_qwen_7b` | `es` | 10228 | 0 | 33 | 0 | **33** | **0.32%** |
-| `baseline_qwen_7b` | `fr` | 10228 | 0 | 48 | 0 | **48** | **0.47%** |
-| `baseline_qwen_7b` | `hi` | 10228 | 0 | 81 | 0 | **81** | **0.79%** |
-| `baseline_qwen_7b` | `ja` | 10228 | 0 | 161 | 0 | **161** | **1.57%** |
-| `baseline_qwen_7b` | `mr` | 10228 | 0 | 67 | 0 | **67** | **0.66%** |
-| `baseline_qwen_7b` | `pa` | 10228 | 0 | 45 | 0 | **45** | **0.44%** |
-| `baseline_qwen_7b` | `ta` | 10228 | 0 | 48 | 0 | **48** | **0.47%** |
-| `baseline_qwen_7b` | `te` | 10228 | 0 | 77 | 0 | **77** | **0.75%** |
-| `baseline_qwen_7b` | `zh` | 10228 | 0 | 63 | 0 | **63** | **0.62%** |
+| Model Suite | Lang | Lines | Script Contam. | Broken %1 | Broken & | Corrupt () | Chatter | Copy Fallback | Total Flawed | Defect Rate (%) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `baseline_gemma_9b` | `ar` | 10228 | 55 | 7 | 1 | 0 | 0 | 337 | **400** | **3.91%** |
+| `baseline_gemma_9b` | `bn` | 10228 | 51 | 3 | 1 | 0 | 0 | 595 | **650** | **6.36%** |
+| `baseline_gemma_9b` | `de` | 10228 | 2 | 5 | 0 | 0 | 1 | 311 | **319** | **3.12%** |
+| `baseline_gemma_9b` | `es` | 10228 | 0 | 4 | 1 | 0 | 0 | 198 | **203** | **1.98%** |
+| `baseline_gemma_9b` | `fr` | 10228 | 0 | 3 | 1 | 0 | 0 | 291 | **295** | **2.88%** |
+| `baseline_gemma_9b` | `hi` | 10228 | 6 | 2 | 1 | 0 | 0 | 345 | **354** | **3.46%** |
+| `baseline_gemma_9b` | `ja` | 10228 | 8 | 2 | 1 | 0 | 0 | 290 | **301** | **2.94%** |
+| `baseline_gemma_9b` | `mr` | 10228 | 78 | 3 | 0 | 0 | 0 | 1942 | **2023** | **19.78%** |
+| `baseline_gemma_9b` | `pa` | 10228 | 473 | 6 | 0 | 0 | 0 | 7579 | **8057** | **78.77%** |
+| `baseline_gemma_9b` | `ta` | 10228 | 171 | 2 | 1 | 0 | 0 | 1842 | **2016** | **19.71%** |
+| `baseline_gemma_9b` | `te` | 10228 | 373 | 1 | 0 | 0 | 0 | 7466 | **7840** | **76.65%** |
+| `baseline_gemma_9b` | `zh` | 10228 | 9 | 5 | 1 | 0 | 0 | 202 | **217** | **2.12%** |
+| `baseline_gpt4o` | `ar` | 10228 | 0 | 1 | 1 | 0 | 0 | 85 | **87** | **0.85%** |
+| `baseline_gpt4o` | `bn` | 10228 | 6 | 0 | 1 | 0 | 0 | 79 | **86** | **0.84%** |
+| `baseline_gpt4o` | `de` | 10228 | 0 | 0 | 0 | 0 | 1 | 432 | **433** | **4.23%** |
+| `baseline_gpt4o` | `es` | 10228 | 0 | 0 | 0 | 0 | 0 | 334 | **334** | **3.27%** |
+| `baseline_gpt4o` | `fr` | 10228 | 0 | 1 | 0 | 0 | 0 | 511 | **512** | **5.01%** |
+| `baseline_gpt4o` | `hi` | 10228 | 4 | 0 | 1 | 0 | 0 | 105 | **110** | **1.08%** |
+| `baseline_gpt4o` | `ja` | 10228 | 1 | 0 | 1 | 0 | 0 | 84 | **86** | **0.84%** |
+| `baseline_gpt4o` | `mr` | 10228 | 1 | 1 | 1 | 0 | 0 | 123 | **126** | **1.23%** |
+| `baseline_gpt4o` | `pa` | 10228 | 38 | 0 | 1 | 0 | 0 | 87 | **126** | **1.23%** |
+| `baseline_gpt4o` | `ta` | 10228 | 26 | 1 | 1 | 0 | 0 | 139 | **166** | **1.62%** |
+| `baseline_gpt4o` | `te` | 10228 | 5 | 1 | 1 | 0 | 0 | 53 | **60** | **0.59%** |
+| `baseline_gpt4o` | `zh` | 10228 | 0 | 0 | 1 | 0 | 0 | 64 | **65** | **0.64%** |
+| `baseline_llama_8b` | `ar` | 10228 | 0 | 163 | 0 | 0 | 0 | 89 | **252** | **2.46%** |
+| `baseline_llama_8b` | `bn` | 10228 | 0 | 111 | 0 | 5 | 0 | 334 | **450** | **4.40%** |
+| `baseline_llama_8b` | `de` | 10228 | 0 | 107 | 0 | 0 | 1 | 166 | **273** | **2.67%** |
+| `baseline_llama_8b` | `es` | 10228 | 0 | 100 | 0 | 0 | 0 | 139 | **239** | **2.34%** |
+| `baseline_llama_8b` | `fr` | 10228 | 0 | 78 | 0 | 0 | 0 | 242 | **320** | **3.13%** |
+| `baseline_llama_8b` | `hi` | 10228 | 0 | 121 | 0 | 0 | 0 | 60 | **181** | **1.77%** |
+| `baseline_llama_8b` | `ja` | 10228 | 0 | 267 | 0 | 0 | 0 | 51 | **318** | **3.11%** |
+| `baseline_llama_8b` | `mr` | 10228 | 0 | 120 | 0 | 2 | 0 | 74 | **196** | **1.92%** |
+| `baseline_llama_8b` | `pa` | 10228 | 0 | 144 | 0 | 2 | 0 | 312 | **458** | **4.48%** |
+| `baseline_llama_8b` | `ta` | 10228 | 0 | 76 | 1 | 1 | 0 | 52 | **130** | **1.27%** |
+| `baseline_llama_8b` | `te` | 10228 | 0 | 132 | 0 | 0 | 0 | 22 | **154** | **1.51%** |
+| `baseline_llama_8b` | `zh` | 10228 | 0 | 273 | 0 | 0 | 0 | 43 | **316** | **3.09%** |
+| `baseline_mistral_nemo` | `ar` | 10228 | 0 | 1218 | 1 | 0 | 0 | 36 | **1255** | **12.27%** |
+| `baseline_mistral_nemo` | `bn` | 10228 | 0 | 632 | 1 | 0 | 0 | 87 | **720** | **7.04%** |
+| `baseline_mistral_nemo` | `de` | 10228 | 0 | 1125 | 1 | 0 | 0 | 91 | **1217** | **11.90%** |
+| `baseline_mistral_nemo` | `es` | 10228 | 0 | 1126 | 1 | 0 | 0 | 82 | **1209** | **11.82%** |
+| `baseline_mistral_nemo` | `fr` | 10228 | 0 | 1216 | 1 | 0 | 1 | 123 | **1340** | **13.10%** |
+| `baseline_mistral_nemo` | `hi` | 10228 | 0 | 511 | 1 | 0 | 0 | 74 | **586** | **5.73%** |
+| `baseline_mistral_nemo` | `ja` | 10228 | 0 | 687 | 1 | 0 | 0 | 21 | **709** | **6.93%** |
+| `baseline_mistral_nemo` | `mr` | 10228 | 0 | 827 | 1 | 0 | 0 | 66 | **894** | **8.74%** |
+| `baseline_mistral_nemo` | `pa` | 10228 | 0 | 576 | 1 | 8 | 0 | 183 | **768** | **7.51%** |
+| `baseline_mistral_nemo` | `ta` | 10228 | 0 | 657 | 1 | 0 | 0 | 33 | **691** | **6.76%** |
+| `baseline_mistral_nemo` | `te` | 10228 | 0 | 783 | 1 | 2 | 1 | 94 | **881** | **8.61%** |
+| `baseline_mistral_nemo` | `zh` | 10228 | 0 | 790 | 1 | 0 | 0 | 14 | **805** | **7.87%** |
+| `baseline_qwen_7b` | `ar` | 10228 | 0 | 30 | 1 | 80 | 0 | 462 | **570** | **5.57%** |
+| `baseline_qwen_7b` | `bn` | 10228 | 304 | 23 | 1 | 146 | 0 | 98 | **557** | **5.45%** |
+| `baseline_qwen_7b` | `de` | 10228 | 24 | 15 | 0 | 0 | 1 | 251 | **291** | **2.85%** |
+| `baseline_qwen_7b` | `es` | 10228 | 0 | 33 | 0 | 0 | 0 | 288 | **321** | **3.14%** |
+| `baseline_qwen_7b` | `fr` | 10228 | 0 | 48 | 0 | 0 | 0 | 440 | **488** | **4.77%** |
+| `baseline_qwen_7b` | `hi` | 10228 | 0 | 81 | 1 | 202 | 0 | 306 | **590** | **5.77%** |
+| `baseline_qwen_7b` | `ja` | 10228 | 0 | 161 | 1 | 0 | 0 | 180 | **342** | **3.34%** |
+| `baseline_qwen_7b` | `mr` | 10228 | 0 | 67 | 1 | 99 | 0 | 187 | **354** | **3.46%** |
+| `baseline_qwen_7b` | `pa` | 10228 | 0 | 45 | 0 | 222 | 0 | 1288 | **1552** | **15.17%** |
+| `baseline_qwen_7b` | `ta` | 10228 | 0 | 48 | 1 | 205 | 0 | 654 | **907** | **8.87%** |
+| `baseline_qwen_7b` | `te` | 10228 | 0 | 77 | 1 | 389 | 0 | 439 | **898** | **8.78%** |
+| `baseline_qwen_7b` | `zh` | 10228 | 0 | 63 | 1 | 0 | 0 | 67 | **131** | **1.28%** |
