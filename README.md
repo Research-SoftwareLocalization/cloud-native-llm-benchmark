@@ -1,30 +1,27 @@
-# Cloud-Native LLM Benchmark Suite
+# Benchmarking Large Language Models for Cloud-Native Software Localization
 
-## Overview
-This repository provides a standardized benchmarking framework for evaluating open-weights and commercial Large Language Models (LLMs) on high-throughput software localization and translation tasks across 12 typologically diverse languages.
+Empirical evaluation and agentic guardrail framework for software UI localization across 12 typologically diverse languages using an immutable 10,228-string corpus.
 
-## Evaluated Model Suite
-1. **Commercial APIs:**
-   - OpenAI **GPT-4o-mini** (`baseline_gpt4o`) — Commercial API baseline
-2. **Open-Weights Frontier (Local vLLM Inference):**
-   - **Gemma-2-9B-It** (`baseline_gemma_9b`) — Google instruction-tuned baseline
-   - **Qwen-2.5-7B-Instruct** (`baseline_qwen_7b`) — Multilingual and Indic performance baseline
-   - **Mistral-Nemo-Instruct-2407** (`baseline_mistral_nemo`) — European and structural formatting baseline
+## Evaluated Model Suites
 
-## Evaluation Methodology
-- **Corpus:** 10,228 software UI localization strings from the KDE desktop environment.
-- **Target Languages:** Arabic (ar), Bengali (bn), German (de), Spanish (es), French (fr), Hindi (hi), Japanese (ja), Marathi (mr), Punjabi (pa), Tamil (ta), Telugu (te), and Mandarin Chinese (zh).
-- **Metrics:** BLEU, chrF++, and structural artifact preservation parity (& accelerators, % variables, camelCase identifiers).
-- **Parity Enforcement:** Strict 1:1 line sequence mapping with automated empty-line preservation and Unix LF normalization.
+### 1. Commercial API Baselines
+- **OpenAI GPT-4o-mini (`baseline_gpt4o`)**: Frontier commercial API baseline evaluated via REST endpoints.
 
-## Execution Environment & Hardware Audit
-Experiments are executed across heterogeneous cloud computing tiers (CPU runtimes for commercial APIs and L4/A100 GPU runtimes for open-weights vLLM inference). Complete historical hardware configurations, execution dates, and dependency snapshots are meticulously maintained in `hardware-env-info.txt` and `requirements-current.txt` to ensure strict reproducibility.
+### 2. Open-Weights Frontier (Local vLLM Inference)
+- **Meta-Llama-3.1-8B-Instruct (`baseline_llama_8b`)**: Frontier open-weights multilingual and reasoning baseline.
+- **Gemma-2-9B-It (`baseline_gemma_9b`)**: Google high-parameter instruction-tuned dense baseline.
+- **Qwen-2.5-7B-Instruct (`baseline_qwen_7b`)**: Multilingual and low-resource Indic performance baseline.
+- **Mistral-Nemo-Instruct-2407 (`baseline_mistral_nemo`)**: High-efficiency European and structural formatting baseline.
 
-## Repository Structure
-- `data/`: Contains source strings and system translation outputs for all evaluated models (`baseline_gpt4o`, `baseline_gemma_9b`, `baseline_qwen_7b`, `baseline_mistral_nemo`).
-- `scripts/`: Automated execution, evaluation, and logging pipelines.
-- `prompts/`: Standardized zero-shot system prompts.
-- `findings/`: Experimental run logs and evaluation metrics.
+## Target Language Typology (12 Languages)
+- **Semitic**: Arabic (`ar`)
+- **Indo-Aryan (Indic)**: Bengali (`bn`), Hindi (`hi`), Marathi (`mr`), Punjabi (`pa`)
+- **Dravidian (Indic)**: Tamil (`ta`), Telugu (`te`)
+- **Germanic**: German (`de`)
+- **Romance**: Spanish (`es`), French (`fr`)
+- **Sino-Tibetan**: Simplified Chinese (`zh`)
+- **Japonic**: Japanese (`ja`)
 
-## License
-Distributed under the MIT License. See `LICENSE` for details.
+## Dataset Provenance
+- **Source Corpus**: `data/source/en.txt` (10,228 real-world software UI strings from KDE/Linux desktop systems).
+- **SHA-256 Checksum**: `464d65825b81856c4cb600638fca87c3b3abc1692239679e1ec093677bfe281f`
