@@ -34,7 +34,7 @@ TAMIL     = r"\u0B80-\u0BFF"
 TELUGU    = r"\u0C00-\u0C7F"
 ALL_INDIC = f"{DEV_HI_MR}{BENGALI}{GURMUKHI}{TAMIL}{TELUGU}"
 
-FORBIDDEN_SCRIPTS = {
+SCRIPT_CONTAMINATION_FILTERS = {
     "es": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{KANA}{ALL_INDIC}]"),
     "fr": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{KANA}{ALL_INDIC}]"),
     "de": re.compile(f"[{ARABIC}{CYRILLIC}{CJK}{HANGUL}{KANA}{ALL_INDIC}]"),
@@ -102,7 +102,7 @@ def translate_corpus(model_id, system_name):
                 print(f"⏩ [{idx}/12] {target_name} ({lang}) already completed perfectly ({len(existing_lines)} lines). Skipping.")
                 continue
 
-        print(f"\n⚡ [{idx}/12] Translating into [{target_name}] using UNIVERSAL SCRIPT GUARDRAIL...", flush=True)
+        print(f"\n⚡ [{idx}/12] Translating into [{target_name}] using SCRIPT CONTAMINATION GUARDRAIL...", flush=True)
         translated_lines = []
         client = httpx.Client(timeout=60.0)
 
@@ -114,7 +114,7 @@ def translate_corpus(model_id, system_name):
             f"Never output foreign out-of-alphabet scripts."
         )
 
-        bad_script_pattern = FORBIDDEN_SCRIPTS.get(lang)
+        bad_script_pattern = SCRIPT_CONTAMINATION_FILTERS.get(lang)
 
         for line_idx, line in enumerate(lines, 1):
             if not line.strip():
