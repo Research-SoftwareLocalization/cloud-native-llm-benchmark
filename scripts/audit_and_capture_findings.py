@@ -38,11 +38,10 @@ timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%
 jsonl_log = REPORTS_DIR / "audit_findings_log.jsonl"
 summary_md = REPORTS_DIR / "qc_audit_summary.md"
 
-# Deduplication primary key set: (model, lang, line_idx)
 seen_issue_keys = set()
 summary_rows = []
 
-# Overwrite mode ('w') ensures fresh, non-duplicated snapshot
+# Overwrite mode ('w') guarantees a fresh, non-duplicated snapshot
 with open(jsonl_log, "w", encoding="utf-8") as jsonl_out:
     for model_name in model_dirs:
         print(f"Auditing `{model_name}`...")
@@ -56,7 +55,7 @@ with open(jsonl_log, "w", encoding="utf-8") as jsonl_out:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 hyp_lines = [l.rstrip("\r\n") for l in f]
 
-            script_bleed = 0
+            script_contamination = 0
             broken_placeholders = 0
             chatter_count = 0
             defective_count = 0
@@ -66,18 +65,21 @@ with open(jsonl_log, "w", encoding="utf-8") as jsonl_out:
                 hyp = hyp_lines[idx]
                 issues = []
 
+                # 1. Script Contamination
                 if forbidden_re.search(hyp):
-                    issues.append("script_bleed")
-                    script_bleed += 1
+                    issues.append("script_contamination")
+                    script_contamination += 1
 
+                # 2. Programmatic Format Placeholders
                 src_p = sorted(PLACEHOLDER_REGEX.findall(src))
                 hyp_p = sorted(PLACEHOLDER_REGEX.findall(hyp))
                 if src_p != hyp_p:
                     issues.append("broken_placeholder")
                     broken_placeholders += 1
 
+                # 3. Conversational Chatter
                 if CHATTER_REGEX.search(hyp):
-                    issues.append("chatter")
+                    issues.append("conversational_chatter")
                     chatter_count += 1
 
                 if issues:
@@ -100,19 +102,19 @@ with open(jsonl_log, "w", encoding="utf-8") as jsonl_out:
 
             total = len(hyp_lines)
             rate = (defective_count / total) * 100 if total > 0 else 0
-            summary_rows.append((model_name, code, total, script_bleed, broken_placeholders, chatter_count, defective_count, rate))
+            summary_rows.append((model_name, code, total, script_contamination, broken_placeholders, chatter_count, defective_count, rate))
 
-# Master clean markdown report
+# Master clean markdown report with formal academic headers
 with open(summary_md, "w", encoding="utf-8") as md_out:
-    md_out.write(f"# Cloud-Native Software Localization: Multi-Model Baseline Audit\n\n")
-    md_out.write(f"**Audit Snapshot Timestamp:** `{timestamp}`  \n")
-    md_out.write(f"**Total Model Suites Audited:** `{len(model_dirs)}` ({', '.join(model_dirs)})  \n")
-    md_out.write(f"**Total Strings per Language:** `10,228`  \n")
-    md_out.write(f"**Unique Defective Line Records:** `{len(seen_issue_keys)}`  \n\n")
-    md_out.write("### Comprehensive Defect Breakdown\n\n")
-    md_out.write("| Model Suite | Lang | Total Lines | Script Bleed | Broken Placeholders | Chatter | Total Defective | Defect Rate (%) |\n")
+    md_out.write(f"# Cloud-Native Software Localization: Multi-Model Quality Audit\n\n")
+    md_out.write(f"**Audit Snapshot:** `{timestamp}`  \n")
+    md_out.write(f"**Evaluated Models ({len(model_dirs)}):** `{', '.join(model_dirs)}`  \n")
+    md_out.write(f"**Corpus Size per Language:** `10,228` strings  \n")
+    md_out.write(f"**Total Unique Defective Records:** `{len(seen_issue_keys)}`  \n\n")
+    md_out.write("### Empirical Failure Mode Breakdown\n\n")
+    md_out.write("| Model Suite | Lang | Total Lines | Script Contamination | Broken Placeholders | Conversational Chatter | Total Defective | Defect Rate (%) |\n")
     md_out.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
     for row in summary_rows:
         md_out.write(f"| `{row[0]}` | `{row[1]}` | {row[2]} | {row[3]} | {row[4]} | {row[5]} | **{row[6]}** | **{row[7]:.2f}%** |\n")
 
-print(f"\n✅ Zero duplicates verified: {len(seen_issue_keys)} unique defective strings logged across {len(summary_rows)} language files.")
+print(f"\n✅ Full audit complete. {len(seen_issue_keys)} unique defective strings logged across {len(summary_rows)} language files.")

@@ -1,13 +1,13 @@
-# Cloud-Native Software Localization: Multi-Model Baseline Audit
+# Cloud-Native Software Localization: Multi-Model Quality Audit
 
-**Audit Snapshot Timestamp:** `2026-10-31 11:05 UTC`  
-**Total Model Suites Audited:** `5` (baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b)  
-**Total Strings per Language:** `10,228`  
-**Unique Defective Line Records:** `14215`  
+**Audit Snapshot:** `2026-10-31 11:33 UTC`  
+**Evaluated Models (5):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b`  
+**Corpus Size per Language:** `10,228` strings  
+**Total Unique Defective Records:** `14215`  
 
-### Comprehensive Defect Breakdown
+### Empirical Failure Mode Breakdown
 
-| Model Suite | Lang | Total Lines | Script Bleed | Broken Placeholders | Chatter | Total Defective | Defect Rate (%) |
+| Model Suite | Lang | Total Lines | Script Contamination | Broken Placeholders | Conversational Chatter | Total Defective | Defect Rate (%) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `baseline_gemma_9b` | `ar` | 10228 | 55 | 7 | 0 | **62** | **0.61%** |
 | `baseline_gemma_9b` | `bn` | 10228 | 51 | 3 | 0 | **54** | **0.53%** |
