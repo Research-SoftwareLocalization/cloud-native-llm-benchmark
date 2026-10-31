@@ -1,10 +1,61 @@
+=== Experimental Hardware & Runtime Environment Audit Trail ===
+
+[Run Entry 1: Commercial API Baseline]
+Target Model / Suite: OpenAI GPT-4o-mini (baseline_gpt4o)
+Execution Infrastructure: Cloud Notebook (CPU Runtime)
+Execution Date: 2026-10-17
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.16
+PyTorch Version: 2.11.0+cpu
+GPU Available: False
+GPU Device: None (CPU Runtime)
+
+[Run Entry 2: Open-Weights Frontier Baseline (Gemma)]
+Target Model / Suite: Google Gemma 2 9B (baseline_gemma_9b)
+Execution Infrastructure: Google Colab (A100/L4 GPU Runtime)
+Execution Date: 2026-10-18
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.15
+PyTorch Version: 2.11.0+cu130
+GPU Available: True
+GPU Device: NVIDIA A100-SXM4-80GB (or L4 Accelerator)
+
+[Run Entry 3: Open-Weights Frontier Baseline (Qwen)]
+Target Model / Suite: Qwen-2.5-7B-Instruct (baseline_qwen_7b)
+Execution Infrastructure: Google Colab (L4 GPU Runtime)
+Execution Date: 2026-10-19
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.15
+PyTorch Version: 2.11.0+cu130
+GPU Available: True
+GPU Device: NVIDIA L4 (24GB VRAM)
+
+[Run Entry 4: Open-Weights Frontier Baseline (Mistral-Nemo)]
+Target Model / Suite: Mistral-Nemo-Instruct-2407 (baseline_mistral_nemo)
+Execution Infrastructure: Google Colab (NVIDIA A100-SXM4-80GB)
+Execution Date: 2026-10-21 03:51 UTC
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.15
+PyTorch Version: 2.11.0+cu130
+GPU Available: True
+GPU Device: NVIDIA A100-SXM4-80GB
+
+[Run Entry 5: Open-Weights Frontier Baseline (Llama)]
+Target Model / Suite: Meta-Llama-3.1-8B-Instruct (baseline_llama_8b)
+Execution Infrastructure: Google Colab (NVIDIA A100-SXM4-80GB)
+Execution Date: 2026-10-21 16:50 UTC
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.15
+PyTorch Version: 2.11.0+cu130
+GPU Available: True
+GPU Device: NVIDIA A100-SXM4-80GB
+Git Checkpoint: 99317fd37bb4f579f77dd8da68cf2f765f835d68
 
 [Audit Run Entry: Quality Check & Invariant Verification]
 Execution Task: Full-Spectrum Multi-Model Quality Audit & Failure Mode Taxonomy
-Execution Timestamp: 2026-10-31 11:50 UTC
-Host Platform: Linux-6.6.159+-x86_64-with-glibc2.39
-CPU Cores: 8
-Python Version: 3.13.18
+Execution Timestamp: 2026-10-31 11:40 UTC
+Host Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Python Version: 3.13.15
 Accelerator Hardware: No GPU attached (Cloud CPU Runtime)
 Target Dataset: data/source/en.txt (10,228 strings, SHA-256: 464d65825b81856c4cb600638fca87c3b3abc1692239679e1ec093677bfe281f)
 Audited Models (5): baseline_gpt4o, baseline_llama_8b, baseline_gemma_9b, baseline_mistral_nemo, baseline_qwen_7b
