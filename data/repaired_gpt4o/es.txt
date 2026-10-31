@@ -357,7 +357,7 @@ Diálogo de Propiedades del Usuario
 (no hay rastro)
 Plugins de imagen
 *. ui_BAR_Designer Archivos
-KDevHTMLPreview
+KDevVistaHTML
 Selección de clave S/MIME
 Modo Matemático
 Entrada de datos
@@ -1189,7 +1189,7 @@ Air para netbooks
 Densidad de impresión
 Pronóstico
 & Acciones de la barra de título
-TimeTunnel
+Túnel del Tiempo
 Archivos del Proyecto Kile
 Eliminar pistas
 Campo de Asunto
@@ -2002,7 +2002,7 @@ Conexión 09
 Avanzado...
 Página de código OEM
 Selección Poligonal
-ImagePlugin_InPainting
+ImagePlugin_InPintura
 Mover hacia arriba
 Cifrado GPG
 Posición objetivo:
@@ -2512,7 +2512,7 @@ En línea desde:
 Finalizador instalado
 ID del servicio:
 Semillas máximas:
-DodgerBlue
+Dodger Azul
 & Nombre:
 Progreso de inscripción
 Documento Actual
@@ -2631,7 +2631,7 @@ Inmejorable
 Cuenta preferida
 Área Principal
 peso mexicano
-ImagePlugin_Core
+Núcleo_ImagePlugin
 Tamaño de pantalla
 Grupo
 Ganancia
@@ -2924,7 +2924,7 @@ Información de Seguridad
 Revisión:
 Marco de alambre:
 Programa de acción
-X innie
+X interior
 & Corrección de Lentes...
 Construir índice
 Profesión
@@ -3089,7 +3089,7 @@ Borde de página:
 & Volumen:
 Entornos de LaTeX:
 Dimensiones: %1x%2
-Spanish (Puerto Rico)
+Español (Puerto Rico)
 Eliminar filtro
 Contenedor de usuario LDAP
 Cáncer
@@ -3122,7 +3122,7 @@ Ocurrencia
 Sugerencia de contraseña:
 Ejercicio:
 Ctrl; Shift; F9 Ver VPL; Editor
-ColorFX
+Color Efectos
 Vista aérea
 Habilitar filtros
 HAL-Power
@@ -3217,7 +3217,7 @@ Asunto
 Algoritmo de autenticación
 Valor del Estado
 Velocidad de rotación YZ
-Zig Zag
+Zig Zaguear
 Borrar
 & Eliminar elemento
 Lista de Distribución
@@ -3260,7 +3260,7 @@ Modo de sincronización
 Declinación:
 La etiqueta %1 ya existe
 (Customizado)
-AntMaze
+LabertintoDeHormigas
 Interactivo
 Regla de pantalla de KDE
 Protocolos de transferencia
@@ -3404,7 +3404,7 @@ Kate Estilos
 Rastrear Progreso
 miTurno
 Orden de reproducción:
-Scripting.
+KDev Scripting.
 Proxy de Red
 de enero
 Herramienta de Migración de KMail
@@ -3439,7 +3439,7 @@ Eliminado
 Árbol Binario
 Bohemia del Sur
 Dólar liberiano
-Orca Speech
+Orca Voz
 Peso Mexicano
 de septiembre
 Velocidad máxima:
@@ -4372,7 +4372,7 @@ Compilador KWSDL
 Renombrar presupuesto
 ssh falta
 variaciónConstanteGravitacional
-WhiteSmoke
+HumoBlanco
 Centro de Información
 Puntos de gravedad
 Ajuste de línea
@@ -4579,7 +4579,7 @@ Perfil:: PSK
 Editar Alias
 Selector de Frecuencia de CPU
 uno
-SandyBrown
+SandyMarrón
 Nuevo módem
 Categoría Fácil
 Habilitar OpenGL
@@ -4619,7 +4619,7 @@ Dirección DNS y lista:
 Herramienta de edición KritaShape
 Caja de giro
 Doble
-AliceBlue
+AzulAlice
 Fuente actual:
 Archivos SXW
 Generación de Código Ruby
@@ -4994,7 +4994,7 @@ Suscribirse
 Excentricidad:
 Investigador Principal
 Tamaño de la baldosa
-& Series...
+& Serie...
 Vista de archivo
 AzulMarino
 Filtros de efectos
@@ -5041,7 +5041,7 @@ Movimiento de MetaBall
 Grupo de trabajo
 transacciones
 & Terminado
-Linediff: B < - > C
+DiferenciaDeLinea: B < - > C
 Serbia
 Cantidad a pagar (USD):
 Justo
@@ -5172,7 +5172,7 @@ Detener diseño
 Mover hacia arriba
 internacionalización
 Panel de Método de Entrada de KDE
-300 DPI Color
+300 DPI Colorido
 Español (Honduras)
 Corrección de gamma
 Resolución de Ghostscript
@@ -5858,7 +5858,7 @@ OR bitwise
 Los Validadores
 Administrador de particiones
 Empresa
-BookMan II
+LibroHombre II
 Programa de Gestión de Fotos
 Error de configuración de CUPS
 Líneas de constelación
@@ -5949,7 +5949,7 @@ Días festivos:
 IP o nombre de host
 Comentarios y archivo:
 MotorLineal
-LightBlue
+AzulClaro
 Compatibilidad con DOS
 Enclosure
 Conectado
@@ -6243,7 +6243,7 @@ Antiguo Cursivo
 Cambiando
 Ortografía (desde el cursor)...
 Posición del puntero
-CoastLine
+KDevLíneaCostera
 Procedimientos de Emergencia:
 (captura)
 Avanzar un 10%
@@ -7216,7 +7216,7 @@ Sin clave privada
 Editar detalles...
 Viento y velocidad:
 No se puede iniciar %1:
-KnownX
+ConocidoX
 abajo
 Archivo/ Carpeta
 Plugin KAB GMX XXPort
@@ -7336,7 +7336,7 @@ Ingrediente 1
 Biblioteca de Objetos
 Ubicación del Proyecto
 Lector de Noticias de Usenet
-(no value)
+(no hay valor)
 no abierto: %1 (%2)
 Comprobando el soporte del dispositivo tun
 Desde el cursor
@@ -7344,7 +7344,7 @@ Avisos
 Usando Watches
 Dominio de autenticación
 Árbol de Estructura
-& Transfer
+& Transferir
 ListaDeBasesDeDatos
 & Temas
 & Nombre del perfil:
@@ -7526,7 +7526,7 @@ Agregar Podcast
 de julio
 Charcell
 Verde profundo
-John Doe
+Juan Doe
 Falso
 Nombre del proyecto
 Tamaño de fuente:
@@ -7634,7 +7634,7 @@ Eventos:
 Nunca Ruta Predeterminada
 Grabando
 Líneas de contexto
-DeepSkyBlue
+KDev Azul Cielo Profundo
 Falta soporte para MPPE
 Editar nombre
 Asia/Teherán
@@ -7852,7 +7852,7 @@ Asignación de recursos
 Usuario3
 Archivo maestro de KOrganizer
 Por unidades:
-KDE Partition Manager KPart
+KDE Gestor de Particiones KPart
 Método de Activación
 Archivo10,
 contraseña:
@@ -8227,7 +8227,7 @@ verde
 Esquema de Nomenclatura de Archivos
 (cuerpo)
 Inicio anticipado
-Spanish (Paraguay)
+Español (Paraguay)
 Árbol de Estructura del Documento
 Ver el & khelpcenter;.
 Lanzar Comentarios
@@ -9013,7 +9013,7 @@ Dithering Cuadrado
 Aplicación de manipulación de imágenes KOffice
 Calidad
 Versión del programa:
-StpGamma
+Stp Gamma
 Fecha de vencimiento
 Fricción:
 ¿Realmente renombrar %1?
@@ -9411,7 +9411,7 @@ Valor inicial:
 Renombrar elementos
 Administrador de Archivos
 (C) 2006-2009 Peter Penz
-Peter Penz
+Pedro Penz
 Mantenedor y desarrollador
 David Faure
 Desarrollador
@@ -9420,7 +9420,7 @@ Rafael Fernández López
 Kevin Ottens
 Holger Freyther
 Max Blazejak
-Michael Austin
+Miguel Austin
 Documentación
 Documento a abrir
 Vaciar Papelera
@@ -9846,7 +9846,7 @@ Servicio de accesos directos globales de KDE
 (C) 2007-2009 Andreas Hartmetz, Michael Jansen
 Andreas Hartmetz
 Mantenedor
-Michael Jansen
+Miguel Jansen
 Tus nombres
 Tus correos electrónicos
 Lanzar comentarios Puede configurar la retroalimentación del lanzamiento de la aplicación aquí.
@@ -9899,12 +9899,12 @@ desconocido
 Módulo de Control de KDE
 Una herramienta para iniciar módulos de control individuales de KDE
 (c) 1999-2004, Los desarrolladores de KDE
-Frans Englich
+Frans Inglés
 Mantenedor
 Daniel Molkentin
 Matías Hoelzer-Kluepfel
 Matías Elter
-Matthias Ettrich
+Matías Ettrich
 Waldo Bastian
 Listar todos los módulos posibles
 Módulo de configuración para abrir
@@ -10008,7 +10008,7 @@ Mostrar:
 Dispositivos extraíbles solamente
 Dispositivos no extraíbles solamente
 Todos los dispositivos
-KDE su daemon
+KDE su demonio
 Daemon utilizado por kdesu
 Derechos de autor (c) 1999,2000 Geert Jansen
 Geert Jansen
@@ -10047,16 +10047,16 @@ Olivier Goffart
 Mantenedor Actual
 Carsten Pfeiffer
 Mantenedor Anterior
-Christian Esken
-Stefan Westerfeld
+Cristiano Esken
+Esteban Westerfeld
 Soporte de sonido
-Charles Samuels
+Carlos Samuels
 Allan Sandfeld Jensen
 Portando a KDE 4
 Error al iniciar KTTSD
 Tus nombres
 Tus correos electrónicos
-KNotifyTest
+KNotificaciónPrueba
 Un programa de prueba para las Notificaciones de KDE
 Configurar Notificaciones
 Durante el inicio anterior, KNotify se bloqueó al crear Arts::Dispatcher. ¿Quieres intentar de nuevo o deshabilitar la salida de sonido de aRts? Si eliges deshabilitar la salida de aRts ahora, puedes volver a habilitarla más tarde o seleccionar un reproductor de sonido alternativo en el panel de control de Notificaciones del Sistema.
@@ -10091,11 +10091,11 @@ Alto
 Configuración del sistema
 Centro de configuración central para KDE.
 (c) 2009, Ben Cooksley
-Ben Cooksley
+Ben Cocinero
 Mantenedor
 Mathias Soeken
 Desarrollador
-Will Stephenson
+Will Estefenson
 Representación del módulo interno, modelo del módulo interno
 Buscar
 Configurar
@@ -10131,10 +10131,10 @@ Proporciona una vista clásica basada en árbol de los módulos de control.
 Configura tu sistema
 Bienvenido a "Configuración del sistema", un lugar central para configurar su sistema informático.
 (c) 2005, Benjamin C. Meyer; (c) 2007, Canonical Ltd
-Benjamin C. Meyer
+Benjamín C. Meyer
 Jonathan Riddell
 Contribuyente
-Michael D. Stemle
+Miguel D. Stemle
 Simón Edwards
 Ellen Reitmayr
 Usabilidad

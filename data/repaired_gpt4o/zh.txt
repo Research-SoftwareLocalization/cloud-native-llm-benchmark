@@ -2924,7 +2924,7 @@ n 的 n
 修订版：
 线框：
 操作程序
-X innie
+X 内部
 & 镜头校正...
 构建索引
 职业
@@ -3709,7 +3709,7 @@ Mutt dotlock 特权
 WiFi 地理定位
 角度（度）
 密钥管理
-JourneysArr
+Journeys数组
 最大请求大小
 DCOPID=`dcop _BAR_ grep karm ` if [$DCOPID] then dcop $DCOPID KarmDCOPIface else echo "karm; 未运行" fi
 文档属性
@@ -5556,7 +5556,7 @@ last.fm 个人资料
 拯救
 以亚尔的
 KDE 时间跟踪工具
-ipsec-tools (racoon)
+ipsec-tools（流浪汉）
 中暗
 主题保护
 跳过 %1。
@@ -6440,7 +6440,7 @@ Winbind 枚举组
 匹配和区分大小写
 使用 %1 启动
 本地位置
-ktimetracker
+ktime跟踪器
 & 其他
 基础系列：
 X 旋转
@@ -6607,7 +6607,7 @@ XML解析错误
 颜色模式
 新闻组
 最佳
-Maxpect
+最大期望
 移除选定的标签
 文件系统类型
 已创建
@@ -7061,7 +7061,7 @@ KsirK 首选项
 地址选择
 海豚视图模式
 新账户
-Lead 4 - Chiflead
+Lead 4 - 智领
 Nepomuk桌面搜索运行器
 随时
 批处理
@@ -7396,7 +7396,7 @@ vpn客户端: %1
 最大大小：
 成人计时器
 密钥选择
-Lead 5 - Charang
+Lead 5 - 查朗
 QIF 文件
 字
 静态图像压缩
@@ -8126,7 +8126,7 @@ Google 群组
 面板
 瑞士
 卡片
-kwest-search-daemon
+kwest-搜索-守护进程
 如何获取 & konsolekalendar;
 美式愚人纸
 字幕
@@ -8135,7 +8135,7 @@ kwest-search-daemon
 扩展与量子加
 种子文件
 无法保存 %1 "%2"。
-& Jens. Hoefkens;
+& 詹斯. 霍夫肯斯;
 （极致质量）
 部件类
 强制
@@ -8672,7 +8672,7 @@ DVD语言模式
 免费:
 任务栏缩略图
 列视图模式
-kdegames
+kde游戏
 跟踪分组
 处理错误
 %u: 用户名
@@ -8715,7 +8715,7 @@ SDL - 函数头部
 系统关闭。
 外观
 头部
-Osmanya
+Osmanya字母
 查询 CDDB
 & 维护
 & kde; 在 & Solaris;
@@ -9013,7 +9013,7 @@ IP过滤器
 KOffice 图像处理应用程序
 质量
 程序版本：
-StpGamma
+Stp伽马
 到期日期
 摩擦：
 真的要重命名 %1 吗？
@@ -9843,7 +9843,7 @@ URL导航器的文本补全模式
 应用程序 %1 已注册一个新的全局快捷键
 打开全局快捷键编辑器
 KDE全局快捷键服务
-(C) 2007-2009 Andreas Hartmetz, Michael Jansen
+(C) 2007-2009 安德烈亚斯·哈特梅茨, 迈克尔·扬森
 安德烈亚斯·哈特梅茨
 维护者
 迈克尔·扬森
@@ -9864,7 +9864,7 @@ KDE全局快捷键服务
 启动指示超时：
 kcm_partition
 KDE 分区信息控制模块
-(c) 2008 Nicolas Ternisien
+(c) 2008 尼古拉斯·特尔尼先
 尼古拉斯·特尔尼西恩
 此列表显示您系统的分区。
 挂载点
@@ -9976,7 +9976,7 @@ supposedly temporary file %1 已被修改。您仍然想要删除它吗？
 文件 %1 已被修改。您想上传更改吗？
 上传
 请勿上传
-KIOExec
+KIO执行
 (c) 1998-2000,2003 KFM/ Konqueror 开发者
 大卫·福尔
 斯蒂芬·库洛夫
@@ -10011,7 +10011,7 @@ KIOExec
 KDE su 守护进程
 kdesu 使用的守护进程
 版权所有 (c) 1999,2000 Geert Jansen
-Geert Jansen
+杰特·扬森
 作者
 你的名字
 您的电子邮件
@@ -10040,7 +10040,7 @@ Geert Jansen
 'seconds' 参数传递给 'seek' 命令必须在 0 和曲目的长度之间。
 'seek'命令需要一个'seconds'参数。
 播放器 '%1 '无法执行操作 'seek'。
-KNotify
+K通知
 KDE通知守护进程
 (C) 1997-2008，KDE 开发者
 奥利维尔·戈法尔
@@ -10090,7 +10090,7 @@ KNotify 问题
 高
 系统设置
 KDE 的中央配置中心。
-(c) 2009, Ben Cooksley
+(c) 2009年，Ben Cooksley
 本·库克斯利
 维护者
 马蒂亚斯·索肯

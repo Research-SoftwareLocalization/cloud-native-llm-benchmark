@@ -323,7 +323,7 @@ PCSCLite-Konfiguration
 1024 mm oder mehr
 KDE-Zertifikatsanforderung
 NMM-Konfiguration
-CGConstraintSolver
+CG-Beschränkungs-Löser
 Überschreibmodus:
 Applet hinzufügen
 Starten in Zelle
@@ -686,7 +686,7 @@ Tastatureingabe:
 Warnung:
 Schatttiefe:
 Status
-Amazon (US)
+Amazon (USA)
 Quanta-Eigenschaften
 Erstellung
 Bildbearbeitungswerkzeug
@@ -1689,7 +1689,7 @@ Kopierfunktion
 Windmühlen
 Spielplatzmenü
 Dateitypen:
-FluidBalls
+Fluidkugeln
 neues_literal
 %1 (Verbunden)
 Systemmonitor
@@ -1891,7 +1891,7 @@ Kurzer Name
 Quadratische Dithering
 %1 nach dem Ende
 1440 x 2880 DPI emuliert
-Wake Island
+Wachinsel
 Uranus zeichnen?
 Integraler Schritt:
 Überprüfung: %1...
@@ -2043,7 +2043,7 @@ Dateimanager
 Zuletzt verwendet
 16.999 Rsh 2 = ergibt ebenfalls 4.
 Standardbetriebsbereich:
-Rotation X:
+Drehung X:
 Druckvorschau
 Oberflächentiefe
 & Schicht klonen
@@ -2115,7 +2115,7 @@ Sound-Eigenschaften
 Fertig...
 Einzelperson
 Timer-Konfiguration
-Revision B:
+Überarbeitung B:
 & DOS-Dateimodus
 Nur das & Label
 lsm-Datei
@@ -2924,7 +2924,7 @@ Sicherheitsinformationen
 Überarbeitung:
 Drahtgitter:
 Aktionsprogramm
-X innie
+X innen
 & Objektivkorrektur...
 Index erstellen
 Beruf
@@ -3122,7 +3122,7 @@ Vorkommen
 Passwort-Hinweis:
 Übung:
 Strg; Umschalt; F9 Ansicht VPL; Editor
-ColorFX
+FarbFX
 Luftaufnahme
 Filter aktivieren
 HAL-Leistung
@@ -3936,7 +3936,7 @@ KSysGuard-Entwickler
 Halbton
 Altar
 24-Bit-Farbe
-Passive Downloads
+KDev Passive Downloads
 Empfangen
 vierzig
 & Zufälliges Loch
@@ -4135,7 +4135,7 @@ Konto ändern
 Überblendzeit
 Diff-Löschung:
 Rückruftelefonnummer
-KDE Dot News
+KDE Punkt Nachrichten
 Aktivierungszeit:
 Nicht verfügbar.
 ID gefunden: %1
@@ -4372,7 +4372,7 @@ KWSDL-Compiler
 Budget umbenennen
 ssh fehlt
 gravitationConstVarianz
-WhiteSmoke
+Weißer Rauch
 Informationszentrum
 Schwerkraftpunkte
 Wortumbruch
@@ -4530,7 +4530,7 @@ Dunkelolivgrün2
 Banner-Einstellungen
 Papiergröße
 Zeilenumbruch
-KDE Text-to-Speech
+KDE Text-zu-Sprache
 Strukturdefinitionen
 Spiel vorbei
 Das Plugins-Menü
@@ -4754,13 +4754,13 @@ DVD-Navigation...
 Trailgröße
 KDE-Entwicklung
 Automatische Korrektur...
---end-time nbsp; end-time
+--end-zeit nbsp; end-zeit
 Signaturposition:
 Wetter
 Google Summer of Code 2008 Projekt: Vektorkacheln für Marble
 Formatierung
 Baumansicht
-K3b??? Encoder
+K3b??? Kodierer
 Schaltflächenaktion
 Bereitstellungsansicht
 Noten von %1 bis %2
@@ -5556,7 +5556,7 @@ Stilmanager
 Bergung
 von Iyar
 KDE Zeitverfolgungswerkzeug
-ipsec-tools (racoon)
+ipsec-Tools (Raccoon)
 Mittel Dunkel
 Thema Schutz
 Übersprungen %1.
@@ -5858,7 +5858,7 @@ Bitweiser ODER
 Die Validatoren
 Partitionsmanager
 Unternehmen
-BookMan II
+BuchMann II
 Fotoverwaltungsprogramm
 CUPS-Konfigurationsfehler
 Konstellationslinien
@@ -7216,7 +7216,7 @@ Kein privater Schlüssel
 Details bearbeiten...
 Wind & Geschwindigkeit:
 Kann %1 nicht starten:
-KnownX
+BekanntX
 unten
 Datei/ Ordner
 KAB GMX XXPort-Plugin
@@ -7284,7 +7284,7 @@ Registrieren Sie den Kontostand zum %1
 & Lernkarten
 Seriennummer
 Abkürzungen
-& Design
+& Gestaltung
 Bereichsname:
 Kommentare:
 Rasterbild
@@ -7526,7 +7526,7 @@ Kann das Verzeichnis %1 nicht öffnen!
 von Juli
 Charcell
 Tiefseegrün
-John Doe
+Johann Doe
 Falsch
 Projektname
 Schriftgröße:
@@ -7634,7 +7634,7 @@ Ereignisse:
 Nie Standardroute
 Aufzeichnung
 Kontextzeilen
-DeepSkyBlue
+Klarer Himmelblau
 MPPE-Unterstützung fehlt
 Name bearbeiten
 Asien/ Teheran
@@ -8239,7 +8239,7 @@ Inhalt von %1
 Fenstertitel:
 & Konto umbenennen
 GROßBUCHSTABEN
-Sierra Leone
+Sierra Löwe
 LaTeX-Umgebung
 Suchergebnisse:
 Grafik
@@ -9229,7 +9229,7 @@ Beziehung
 Nachbearbeitung
 Treiberhandle
 Qualitätsbasiert
-Adept Manager
+Adept-Manager
 Zur Einheit
 Unverändert:
 Stahlblau3
@@ -10050,13 +10050,13 @@ Vorheriger Betreuer
 Christian Esken
 Stefan Westerfeld
 Soundunterstützung
-Charles Samuels
+Karl Samuel
 Allan Sandfeld Jensen
 Portierung zu KDE 4
 KTTSD-Start fehlgeschlagen
 Ihre Namen
 Ihre E-Mails
-KNotifyTest
+KBenachrichtigungstest
 Ein Testprogramm für KDE-Benachrichtigungen
 Benachrichtigungen konfigurieren
 Während des vorherigen Starts ist KNotify beim Erstellen von Arts::Dispatcher abgestürzt. Möchten Sie es erneut versuchen oder die aRts-Tonausgabe deaktivieren? Wenn Sie sich entscheiden, die aRts-Ausgabe jetzt zu deaktivieren, können Sie sie später wieder aktivieren oder einen alternativen Audioplayer im Kontrollfeld für Systembenachrichtigungen auswählen.
@@ -10091,7 +10091,7 @@ Hoch
 Systemeinstellungen
 Zentrales Konfigurationszentrum für KDE.
 (c) 2009, Ben Cooksley
-Ben Cooksley
+Ben Kochsley
 Wartungsbeauftragter
 Mathias Soeken
 Entwickler

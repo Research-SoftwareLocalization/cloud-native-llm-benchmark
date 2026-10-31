@@ -357,7 +357,7 @@ Dialogue des propriétés de l'utilisateur
 (aucune trace)
 Plugins d'image
 *. fichiers ui_BAR_Designer
-KDevHTMLPreview
+KDevAperçuHTML
 Sélection de clé S/MIME
 Mode Mathématique
 Saisie de données
@@ -870,7 +870,7 @@ Couche 2
 Position de départ :
 Gestion d'impression KDE
 Utilisateur%
-Perspective 3D
+Perspective en 3D
 Ajouter un podcast...
 Propriétés TIFF
 Triadique
@@ -1375,7 +1375,7 @@ Rechercher des fichiers avec Kat
 Propriétés de la chanson
 Supprimer l'étiquette
 Six
-MediumAquamarine
+Medium Aquamarine
 Rayon atomique
 Échec de la vérification
 Publication rapide
@@ -1432,7 +1432,7 @@ Ombre
 Dessert
 Joueur%1
 Personnel :
-PictureGrade
+PictureNote
 Rechercher des playlists
 & Exemples
 Fichier de groupe
@@ -1689,7 +1689,7 @@ Fonction de copie
 Moulins à vent
 Menu du terrain de jeu
 Types de fichiers :
-FluidBalls
+BallesFluides
 nouveau_littéral
 %1 (Connecté)
 moniteur système
@@ -2002,7 +2002,7 @@ Connexion 09
 Avancé...
 Page de code OEM
 Sélection polygonale
-ImagePlugin_InPainting
+ImagePlugin_InPeinture
 Déplacer vers le haut
 Chiffrement GPG
 Position cible :
@@ -2083,7 +2083,7 @@ ouvrir les activités du bureau
 Vitesse de téléchargement
 Suspendre sur disque
 entre les balises
-& Support KVpnc...
+& Support K Vpnc...
 Temps total : 00:00:00
 NoPCL3GUI
 Général
@@ -2186,7 +2186,7 @@ Anglais (Belize)
 Administrateur
 Collection de proxy
 Booléens étendus
-EcoBlack
+Eco Noir
 Deuxième prénom
 Progression :
 Le WBS
@@ -2512,7 +2512,7 @@ En ligne depuis :
 Finisseur installé
 ID de service :
 Nombre maximum de graines :
-DodgerBlue
+Dodger Bleu
 & Nom :
 Progression de l'inscription
 Document actuel
@@ -2644,7 +2644,7 @@ Diapositive maître...
 Hôte inconnu
 Galerie :
 Taille de la grille
-Sky Walker
+Ciel Marcheur
 Type personnalisé 5
 Collections
 TailleVm
@@ -2903,7 +2903,7 @@ Chiffrement
 Démarrer l'enregistrement :
 Corrélation :
 Vue en liste
-& smime; Validation
+& smime; Validation de validation
 Taux d'échantillonnage :
 Erreur de création
 Outil DivineProportion
@@ -2924,7 +2924,7 @@ Informations de sécurité
 Révision :
 Fil de fer :
 Programme d'action
-X innie
+X intérieur
 & Correction de lentille...
 Construire l'index
 Profession
@@ -3122,7 +3122,7 @@ Occurrence
 Indice de mot de passe :
 Exercice :
 Ctrl; Shift; F9 Afficher VPL; Éditeur
-ColorFX
+CouleurFX
 Vue aérienne
 Activer les filtres
 HAL-Power
@@ -3439,7 +3439,7 @@ Supprimé
 Arbre binaire
 Bohême du Sud
 Dollar libérien
-Orca Speech
+Orca Discours
 Peso mexicain
 de septembre
 Vitesse de pointe :
@@ -4135,7 +4135,7 @@ Changer de compte
 Temps de fondu
 Diff de suppression :
 Numéro de téléphone de rappel
-KDE Dot News
+KDE Point Nouvelles
 Activer le temps :
 Non disponible.
 ID trouvé : %1
@@ -4372,7 +4372,7 @@ Compilateur KWSDL
 Renommer le budget
 ssh est manquant
 varianceConstGravitation
-WhiteSmoke
+White Fumée
 Centre d'information
 Points de gravité
 Retour à la ligne
@@ -4619,7 +4619,7 @@ Adresse DNS et liste :
 Outil d'édition KritaShape
 Boîte à rotation
 Double
-AliceBlue
+Alice Bleu
 Source actuel :
 Fichiers SXW
 Génération de code Ruby
@@ -5858,7 +5858,7 @@ OU bit à bit
 Les Validateurs
 Gestionnaire de partitions
 Société
-BookMan II
+LivreHomme II
 Programme de gestion de photos
 Erreur de configuration de CUPS
 Lignes de constellation
@@ -6243,7 +6243,7 @@ Ancien italique
 Changement
 Orthographe (depuis le curseur)...
 Position du pointeur
-CoastLine
+LigneCôtière
 Procédures d'urgence :
 (capture)
 Avancer de 10 %
@@ -6782,7 +6782,7 @@ triangle
 Méthode de calcul de base
 Taille du bouton :
 & Températures
-spriteshow (ss)
+affichage de sprite (ss)
 Grand-mère
 Liste de diffusion
 & Liste de diffusion des utilisateurs
@@ -7216,7 +7216,7 @@ Pas de clé privée
 Modifier les détails...
 Vent et vitesse :
 Impossible de démarrer %1 :
-KnownX
+ConnuX
 vers le bas
 Fichier/ Dossier
 Plugin KAB GMX XXPort
@@ -7526,7 +7526,7 @@ Impossible d'ouvrir le répertoire %1 !
 de juillet
 Charcell
 Vert profond
-John Doe
+Jean Doe
 Faux
 Nom du projet
 Taille de police :
@@ -7548,7 +7548,7 @@ depuis %1
 Fin de partie
 de juin
 Sélection du mode
-& Source:
+& Source :
 Titre de la boîte de dialogue
 Échoué
 SlateBleu1
@@ -7634,7 +7634,7 @@ Conflit de clé
 Jamais Route par Défaut
 Enregistrement
 Lignes de contexte
-DeepSkyBlue
+KDev Bleu Ciel Profond
 Le support MPPE est manquant
 Modifier le nom
 Asie/ Téhéran
@@ -8239,7 +8239,7 @@ Contenu de %1
 Titre de la fenêtre:
 & Renommer le compte
 Lettres majuscules
-Sierra Leone
+Sierra Léone
 Environnement LaTeX
 Résultats de recherche :
 Graphiques
@@ -9013,7 +9013,7 @@ Dithering carré
 Application de manipulation d'images KOffice
 Qualité
 Version du programme :
-StpGamma
+Stp Gamma
 Date d'échéance
 Friction :
 Vraiment renommer %1 ?
@@ -9219,7 +9219,7 @@ Non trié
 N'est pas
 transparent réseau
 Limite de vitesse en Ko/s
-forceVariance
+force Variance
 Alignement du titre :
 Vue du jour
 Heure de début
@@ -9377,7 +9377,7 @@ Remplacement :
 Dehors (O/ o)
 Touche Contrôle
 demander X
-Top Secret
+KDev Très Secret
 Par chemin
 Contributions de code
 Niveau de confidentialité du réseau :
@@ -9411,7 +9411,7 @@ Valeur initiale :
 Renommer les éléments
 Gestionnaire de fichiers
 (C) 2006-2009 Peter Penz
-Peter Penz
+Pierre Penz
 Mainteneur et développeur
 David Faure
 Développeur
@@ -9886,7 +9886,7 @@ Disque dur
 Lecteur CD/DVD
 Disquette
 Ruban
-Compact Flash
+Flash Compact
 Clé USB
 Média Intelligent
 SD/ MMC
@@ -9899,11 +9899,11 @@ inconnu
 Module de contrôle KDE
 Un outil pour démarrer des modules de contrôle KDE uniques
 (c) 1999-2004, Les développeurs de KDE
-Frans Englich
+Frans Anglais
 Mainteneur
 Daniel Molkentin
 Matthias Hoelzer-Kluepfel
-Matthias Elter
+Matthieu Elter
 Matthias Ettrich
 Waldo Bastian
 Lister tous les modules possibles
@@ -10056,7 +10056,7 @@ Portage vers KDE 4
 Démarrage de KTTSD échoué
 Vos noms
 Vos e-mails
-KNotifyTest
+KTestDeNotification
 Un programme de test pour les notifications KDE
 Configurer les notifications
 Lors du démarrage précédent, KNotify a planté lors de la création de Arts::Dispatcher. Voulez-vous réessayer ou désactiver la sortie sonore aRts ? Si vous choisissez de désactiver la sortie aRts maintenant, vous pourrez la réactiver plus tard ou sélectionner un lecteur audio alternatif dans le panneau de configuration des notifications système.
@@ -10091,7 +10091,7 @@ Bas
 Paramètres système
 Centre de configuration central pour KDE.
 (c) 2009, Ben Cooksley
-Ben Cooksley
+Ben Cuisinier
 Mainteneur
 Mathias Soeken
 Développeur
@@ -10134,7 +10134,7 @@ Bienvenue dans "Paramètres du système", un endroit central pour configurer vot
 Benjamin C. Meyer
 Jonathan Riddell
 Contributeur
-Michael D. Stemle
+Michel D. Stemle
 Simon Edwards
 Ellen Reitmayr
 Utilisabilité

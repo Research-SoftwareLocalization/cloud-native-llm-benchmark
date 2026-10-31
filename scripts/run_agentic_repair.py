@@ -23,7 +23,7 @@ LANGUAGES = {
     "hi": ("Hindi", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
     "ja": ("Japanese", re.compile(r'[\u0400-\u04ff\u0600-\u06ff\uac00-\ud7af]')),
     "mr": ("Marathi", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
-    "pa": ("Punjabi", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
+    "pa": ("Punjabi (strictly Gurmukhi script ਪੰਜਾਬੀ, NEVER Shahmukhi/Arabic script)", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
     "ta": ("Tamil", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
     "te": ("Telugu", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
     "zh": ("Simplified Chinese", re.compile(r'[\u0400-\u04ff\u0600-\u06ff\uac00-\ud7af]'))
@@ -38,12 +38,17 @@ FORMULA_REGEX = re.compile(r'^[A-Z0-9_]+\([^)]*\)$')
 POSIX_FMT_REGEX = re.compile(r'^%[a-zA-Z](\s*\([^)]*\))?$')
 XML_ONLY_REGEX = re.compile(r'^&\s*[a-zA-Z0-9._-]+;$')
 CAMEL_OR_SNAKE_REGEX = re.compile(r'([a-z][A-Z]|_[a-zA-Z])')
+X11_COLOR_REGEX = re.compile(r'^[A-Za-z]+[1-4]$')
+UA_STRING_REGEX = re.compile(r'^UADescription\s*\(.*\)$')
+TZ_PATH_REGEX = re.compile(r'^[A-Za-z]+/\s*[A-Za-z_]+$')
+EURO_COGNATE_PHRASE_REGEX = re.compile(r'^(\d+\s+Points|Position\s+[xyz]:?|Pixmap:?|Kig\s+figure|Dithering\s+PPI)$', re.IGNORECASE)
 
 KNOWN_NTTS = {
     'SCSI', 'S-ATA', 'IEEE 1394', 'SD/ MMC', 'RITOn', 'kcm_partition', 'KTraderClient',
     'USB', 'PCI', 'BIOS', 'IPv4', 'IPv6', 'UUID', 'HDMI', 'TCP', 'UDP', 'DHCP', 'DNS',
     'RAM', 'CPU', 'GPU', 'Samba', 'OpenVPN', 'Cisco', 'ALSA', 'MIME', 'UTF-8', 'ASCII',
-    'HTML', 'HTTP', 'HTTPS', 'LDAP', 'IMAP', 'POP3', 'SMTP', 'X11', 'OpenGL'
+    'HTML', 'HTTP', 'HTTPS', 'LDAP', 'IMAP', 'POP3', 'SMTP', 'X11', 'OpenGL',
+    'Iptc', 'NoPCL3GUI', 'SDP UUid:', 'KMobileTools EngineXP', 'Linediff: A< - > B'
 }
 
 def has_accelerator(text: str) -> bool:
@@ -54,14 +59,17 @@ def is_legitimate_ntt(src_str: str, lang_code: str = "") -> bool:
     s = src_str.strip()
     if s in KNOWN_NTTS:
         return True
-    if FORMULA_REGEX.match(s) or POSIX_FMT_REGEX.match(s) or XML_ONLY_REGEX.match(s):
+    if (FORMULA_REGEX.match(s) or POSIX_FMT_REGEX.match(s) or XML_ONLY_REGEX.match(s)
+            or X11_COLOR_REGEX.match(s) or UA_STRING_REGEX.match(s) or TZ_PATH_REGEX.match(s)):
         return True
     if re.match(r'^[A-Z0-9\s/\-\.]{2,12}$', s) and not s.isalpha():
         return True
     if s.isupper() and len(s) <= 6:
         return True
     if lang_code in ("de", "es", "fr"):
-        if " " not in s and not CAMEL_OR_SNAKE_REGEX.search(s) and re.match(r'^[A-Za-z\-]+$', s):
+        if EURO_COGNATE_PHRASE_REGEX.match(s):
+            return True
+        if " " not in s and not CAMEL_OR_SNAKE_REGEX.search(s) and re.match(r'^[A-Za-z\-]+:?$', s):
             return True
     return False
 
@@ -93,6 +101,12 @@ def validate_single_line(src: str, hyp: str, lang_code: str):
 
     return issues
 
+def split_camelcase_hint(s: str) -> str:
+    # Splits e.g. 'KDevHTMLPreview' -> 'KDev HTML Preview' as a semantic hint
+    spaced = re.sub(r'([a-z])([A-Z])', r'\1 \2', s)
+    spaced = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1 \2', spaced)
+    return spaced.replace('_', ' ')
+
 def build_targeted_prompt(src: str, flawed: str, issues: list, lang_name: str):
     rules = []
     if "broken_placeholder" in issues:
@@ -101,9 +115,13 @@ def build_targeted_prompt(src: str, flawed: str, issues: list, lang_name: str):
     if "broken_accelerator" in issues:
         rules.append("- Keyboard Accelerator Invariant: Retain the keyboard shortcut marker '&' attached to an appropriate letter in the translated word.")
     if "script_contamination" in issues or "encoding_corruption" in issues:
-        rules.append(f"- Script Purity Invariant: Output strictly in valid {lang_name} script. Do NOT leak foreign or corrupted characters.")
+        rules.append(f"- Script Purity Invariant: Output strictly in valid {lang_name}. NEVER use Arabic/Shahmukhi, Chinese Hanzi, or Cyrillic script.")
     if "copy_fallback" in issues:
-        rules.append(f"- Linguistic Invariant: Do not copy the English string verbatim. Localize the UI string or developer identifier into natural {lang_name} while keeping brand names intact.")
+        hint = split_camelcase_hint(src)
+        rules.append(
+            f"- Linguistic Invariant: Do NOT return '{src}' unchanged. "
+            f"Decompose compound identifiers or phrases (meaning: '{hint}') and translate the descriptive words into {lang_name} while keeping brand prefixes (like KDev, KOffice) intact."
+        )
 
     rules_text = "\n".join(rules)
     system_prompt = (
@@ -142,7 +160,7 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
     if target_lang:
         findings = [f for f in findings if f.get("lang") == target_lang]
 
-    print(f"🔍 Loaded {len(findings)} confirmed defect records for `{model_name}` ({target_lang or 'ALL'}). Mode: {'DRY RUN' if dry_run else f'LIVE PARALLEL ({max_workers} workers)'}")
+    print(f"🔍 Loaded {len(findings)} confirmed defect records for `{model_name}` ({target_lang or 'ALL'}).")
 
     lang_groups = {}
     for item in findings:
@@ -159,8 +177,6 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
         active_input_path = out_repaired_path if out_repaired_path.exists() else src_baseline_path
         with open(active_input_path, "r", encoding="utf-8") as f:
             current_lines = [l.rstrip("\r\n") for l in f]
-
-        print(f"\n⚡ Processing {lang_code.upper()} ({len(defect_list)} candidate lines)...", flush=True)
 
         def process_record(record):
             idx = record["line_idx"]
@@ -220,7 +236,6 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
             for fut in as_completed(futures):
                 results.append(fut.result())
 
-        # Sort by line_idx for deterministic trace logging
         results.sort(key=lambda x: x[0])
 
         repaired_count = 0
@@ -246,9 +261,8 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
         if not dry_run:
             with open(out_repaired_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(current_lines) + "\n")
-            print(f"✅ Saved repaired output to: {out_repaired_path.relative_to(REPO_ROOT)}", flush=True)
 
-        print(f"  📊 {lang_code}: {repaired_count} repaired, {already_clean} already compliant, {failed_repairs} failed.", flush=True)
+        print(f"  📊 {lang_code.upper()}: +{repaired_count} newly repaired, {already_clean} already compliant, {failed_repairs} remaining.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
