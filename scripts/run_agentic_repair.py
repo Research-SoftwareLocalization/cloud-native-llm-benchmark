@@ -10,29 +10,60 @@ from openai import OpenAI
 
 REPO_ROOT = Path("/content/cloud-native-llm-benchmark") if Path("/content/cloud-native-llm-benchmark").exists() else Path(".")
 DATA_DIR = REPO_ROOT / "data"
-ARCHIVE_DIR = REPO_ROOT / "archive" / "raw_baselines"
 REPORTS_DIR = REPO_ROOT / "reports"
 FINDINGS_LOG = REPORTS_DIR / "audit_findings_log.jsonl"
 TRACE_LOG = REPORTS_DIR / "correction_trace_log.jsonl"
 
 LANGUAGES = {
-    "ar": ("Modern Standard Arabic", re.compile(r'[一-鿿가-힯Ѐ-ӿ]')),
-    "bn": ("Bengali", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿ]')),
-    "de": ("German", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿঀ-৿]')),
-    "es": ("Spanish", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿঀ-৿]')),
-    "fr": ("French", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿঀ-৿]')),
-    "hi": ("Hindi", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿ]')),
-    "ja": ("Japanese", re.compile(r'[Ѐ-ӿ؀-ۿ가-힯]')),
-    "mr": ("Marathi", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿ]')),
-    "pa": ("Punjabi", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿ]')),
-    "ta": ("Tamil", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿ]')),
-    "te": ("Telugu", re.compile(r'[一-鿿가-힯Ѐ-ӿ؀-ۿ]')),
-    "zh": ("Simplified Chinese", re.compile(r'[Ѐ-ӿ؀-ۿ가-힯]'))
+    "ar": ("Modern Standard Arabic", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff]')),
+    "bn": ("Bengali", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
+    "de": ("German", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff\u0980-\u09ff]')),
+    "es": ("Spanish", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff\u0980-\u09ff]')),
+    "fr": ("French", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff\u0980-\u09ff]')),
+    "hi": ("Hindi", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
+    "ja": ("Japanese", re.compile(r'[\u0400-\u04ff\u0600-\u06ff\uac00-\ud7af]')),
+    "mr": ("Marathi", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
+    "pa": ("Punjabi", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
+    "ta": ("Tamil", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
+    "te": ("Telugu", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff]')),
+    "zh": ("Simplified Chinese", re.compile(r'[\u0400-\u04ff\u0600-\u06ff\uac00-\ud7af]'))
 }
 
+CHATTER_REGEX = re.compile(r'(?i)^(here is the translation|translation:|note:|as an ai|translate into|arabic:|spanish:|bengali:)')
 PLACEHOLDER_REGEX = re.compile(r'%\d+|%[a-zA-Z]|\{[^}]+\}')
-ACCELERATOR_REGEX = re.compile(r'&[a-zA-Z]')
-CHATTER_REGEX = re.compile(r'(?i)^(here is the translation|translation:|note:|as an ai|translate into)')
+XML_ENTITY_REGEX = re.compile(r'&\s*[a-zA-Z0-9._-]+;')
+ACCELERATOR_REGEX = re.compile(r'&[^\s\d_;]')
+REPLACEMENT_CHAR_REGEX = re.compile(r'\ufffd')
+FORMULA_REGEX = re.compile(r'^[A-Z0-9_]+\([^)]*\)$')
+POSIX_FMT_REGEX = re.compile(r'^%[a-zA-Z](\s*\([^)]*\))?$')
+XML_ONLY_REGEX = re.compile(r'^&\s*[a-zA-Z0-9._-]+;$')
+CAMEL_OR_SNAKE_REGEX = re.compile(r'([a-z][A-Z]|_[a-zA-Z])')
+
+KNOWN_NTTS = {
+    'SCSI', 'S-ATA', 'IEEE 1394', 'SD/ MMC', 'RITOn', 'kcm_partition', 'KTraderClient',
+    'USB', 'PCI', 'BIOS', 'IPv4', 'IPv6', 'UUID', 'HDMI', 'TCP', 'UDP', 'DHCP', 'DNS',
+    'RAM', 'CPU', 'GPU', 'Samba', 'OpenVPN', 'Cisco', 'ALSA', 'MIME', 'UTF-8', 'ASCII',
+    'HTML', 'HTTP', 'HTTPS', 'LDAP', 'IMAP', 'POP3', 'SMTP', 'X11', 'OpenGL'
+}
+
+def has_accelerator(text: str) -> bool:
+    cleaned = XML_ENTITY_REGEX.sub('', text)
+    return bool(ACCELERATOR_REGEX.search(cleaned))
+
+def is_legitimate_ntt(src_str: str, lang_code: str = "") -> bool:
+    s = src_str.strip()
+    if s in KNOWN_NTTS:
+        return True
+    if FORMULA_REGEX.match(s) or POSIX_FMT_REGEX.match(s) or XML_ONLY_REGEX.match(s):
+        return True
+    if re.match(r'^[A-Z0-9\s/\-\.]{2,12}$', s) and not s.isalpha():
+        return True
+    if s.isupper() and len(s) <= 6:
+        return True
+    if lang_code in ("de", "es", "fr"):
+        if " " not in s and not CAMEL_OR_SNAKE_REGEX.search(s) and re.match(r'^[A-Za-z\-]+$', s):
+            return True
+    return False
 
 def validate_single_line(src: str, hyp: str, lang_code: str):
     issues = []
@@ -46,15 +77,19 @@ def validate_single_line(src: str, hyp: str, lang_code: str):
     if src_p != hyp_p:
         issues.append("broken_placeholder")
 
-    if len(ACCELERATOR_REGEX.findall(src)) > 0 and len(ACCELERATOR_REGEX.findall(hyp)) == 0:
+    if has_accelerator(src) and not has_accelerator(hyp):
         issues.append("broken_accelerator")
 
-    src_s, hyp_s = src.strip(), hyp.strip()
-    if src_s == hyp_s and len(src_s) > 3 and any(c.isalpha() for c in src_s) and lang_code not in ["en"]:
-        issues.append("copy_fallback")
+    if REPLACEMENT_CHAR_REGEX.search(hyp):
+        issues.append("encoding_corruption")
 
     if CHATTER_REGEX.search(hyp):
         issues.append("conversational_chatter")
+
+    src_s, hyp_s = src.strip(), hyp.strip()
+    if src_s == hyp_s and len(src_s) > 3 and any(c.isalpha() for c in src_s) and lang_code not in ["en"]:
+        if not is_legitimate_ntt(src_s, lang_code):
+            issues.append("copy_fallback")
 
     return issues
 
@@ -64,12 +99,11 @@ def build_targeted_prompt(src: str, flawed: str, issues: list, lang_name: str):
         placeholders = sorted(list(set(PLACEHOLDER_REGEX.findall(src))))
         rules.append(f"- Exact Format Invariant: You MUST preserve all variable specifiers {placeholders} verbatim.")
     if "broken_accelerator" in issues:
-        accs = sorted(list(set(ACCELERATOR_REGEX.findall(src))))
-        rules.append(f"- Keyboard Accelerator Invariant: Retain the keyboard shortcut marker '&' attached to an appropriate letter (source has {accs}).")
-    if "script_contamination" in issues:
-        rules.append(f"- Script Purity Invariant: Output strictly in {lang_name} script. Do NOT leak foreign characters.")
+        rules.append("- Keyboard Accelerator Invariant: Retain the keyboard shortcut marker '&' attached to an appropriate letter in the translated word.")
+    if "script_contamination" in issues or "encoding_corruption" in issues:
+        rules.append(f"- Script Purity Invariant: Output strictly in valid {lang_name} script. Do NOT leak foreign or corrupted characters.")
     if "copy_fallback" in issues:
-        rules.append(f"- Linguistic Invariant: Do not copy the English string. Provide an authentic {lang_name} software translation.")
+        rules.append(f"- Linguistic Invariant: Do not copy the English string verbatim. Localize the UI string or developer identifier into natural {lang_name} while keeping brand names intact.")
 
     rules_text = "\n".join(rules)
     system_prompt = (
@@ -92,12 +126,12 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
         client = OpenAI(base_url=base_url, api_key=api_key)
 
     model_dir = DATA_DIR / model_name
-    archive_model_dir = ARCHIVE_DIR / model_name
-    archive_model_dir.mkdir(parents=True, exist_ok=True)
+    repaired_dir = DATA_DIR / f"repaired_{model_name.replace('baseline_', '')}"
+    repaired_dir.mkdir(parents=True, exist_ok=True)
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
     if not FINDINGS_LOG.exists():
-        raise FileNotFoundError(f"Missing {FINDINGS_LOG}. Please run audit first.")
+        raise FileNotFoundError(f"Missing {FINDINGS_LOG}. Run audit first.")
 
     with open(FINDINGS_LOG, "r", encoding="utf-8") as f:
         findings = [json.loads(line) for line in f if json.loads(line).get("model") == model_name]
@@ -105,7 +139,7 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
     if target_lang:
         findings = [f for f in findings if f.get("lang") == target_lang]
 
-    print(f"🔍 Loaded {len(findings)} flagged records for `{model_name}` ({target_lang or 'ALL'}). Mode: {'DRY RUN' if dry_run else 'LIVE REPAIR'}")
+    print(f"🔍 Loaded {len(findings)} confirmed defect records for `{model_name}` ({target_lang or 'ALL'}). Mode: {'DRY RUN' if dry_run else 'LIVE REPAIR'}")
 
     lang_groups = {}
     for item in findings:
@@ -113,33 +147,29 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
 
     for lang_code, defect_list in lang_groups.items():
         lang_name, _ = LANGUAGES[lang_code]
-        file_path = model_dir / f"{lang_code}.txt"
-        archive_path = archive_model_dir / f"{lang_code}.txt"
+        src_baseline_path = model_dir / f"{lang_code}.txt"
+        out_repaired_path = repaired_dir / f"{lang_code}.txt"
 
-        if not file_path.exists():
+        if not src_baseline_path.exists():
             continue
 
-        # Requirement 1: Archive raw baseline before touching
-        if not archive_path.exists():
-            shutil.copy2(file_path, archive_path)
-            print(f"📦 Archived raw baseline to: {archive_path.relative_to(REPO_ROOT)}")
-
-        with open(file_path, "r", encoding="utf-8") as f:
+        # Start from existing repaired file if already created, otherwise from raw baseline
+        active_input_path = out_repaired_path if out_repaired_path.exists() else src_baseline_path
+        with open(active_input_path, "r", encoding="utf-8") as f:
             current_lines = [l.rstrip("\r\n") for l in f]
 
         repaired_count = 0
-        false_positives = 0
+        already_clean = 0
         failed_repairs = 0
         trace_entries = []
 
-        print(f"\n⚡ Validating {lang_code.upper()} ({len(defect_list)} candidate defect lines)...")
+        print(f"\n⚡ Processing {lang_code.upper()} ({len(defect_list)} candidate lines)...")
 
         for record in defect_list:
             idx = record["line_idx"]
             src = record["source"]
             flawed = current_lines[idx]
 
-            # Requirement 2: Re-validate defect in real time
             confirmed_issues = validate_single_line(src, flawed, lang_code)
 
             trace_record = {
@@ -154,8 +184,8 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
             }
 
             if not confirmed_issues:
-                false_positives += 1
-                trace_record["status"] = "SKIPPED_FALSE_POSITIVE"
+                already_clean += 1
+                trace_record["status"] = "ALREADY_COMPLIANT"
                 trace_entries.append(trace_record)
                 continue
 
@@ -165,7 +195,6 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
                 trace_entries.append(trace_record)
                 continue
 
-            # Live API repair
             sys_prompt, usr_prompt = build_targeted_prompt(src, flawed, confirmed_issues, lang_name)
             trace_record["repair_prompt"] = sys_prompt
 
@@ -197,23 +226,31 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
 
             trace_entries.append(trace_record)
 
-        # Requirement 3: Append end-to-end trace logs
         with open(TRACE_LOG, "a", encoding="utf-8") as trace_out:
             for entry in trace_entries:
                 trace_out.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
-        # Save clean in-place (Requirement 1: NO suffixes, keeps lang.txt)
-        if not dry_run and repaired_count > 0:
-            with open(file_path, "w", encoding="utf-8") as f:
+        if not dry_run:
+            with open(out_repaired_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(current_lines) + "\n")
-            print(f"✅ In-place update complete: {file_path.relative_to(REPO_ROOT)}")
+            print(f"✅ Saved repaired output to: {out_repaired_path.relative_to(REPO_ROOT)}")
 
-        print(f"  📊 {lang_code}: {repaired_count} confirmed/repaired, {false_positives} false-positives, {failed_repairs} failed.")
+        print(f"  📊 {lang_code}: {repaired_count} repaired, {already_clean} already compliant, {failed_repairs} failed.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
     parser.add_argument("--lang", default=None)
     parser.add_argument("--dry_run", action="store_true")
+    parser.add_argument("--base_url", default="https://api.openai.com/v1")
+    parser.add_argument("--api_key_env", default="OPENAI_API_KEY")
+    parser.add_argument("--model_id", default="gpt-4o-mini")
     args = parser.parse_args()
-    repair_model_outputs(args.model, target_lang=args.lang, dry_run=args.dry_run)
+    repair_model_outputs(
+        args.model,
+        target_lang=args.lang,
+        dry_run=args.dry_run,
+        base_url=args.base_url,
+        api_key_env=args.api_key_env,
+        model_id=args.model_id
+    )
