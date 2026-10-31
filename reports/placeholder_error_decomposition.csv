@@ -1,0 +1,7 @@
+model_suite,total_placeholder_errors,omitted_placeholder,hallucinated_placeholder,mismatched_placeholder
+baseline_gemma_9b,43,38,0,5
+baseline_gpt4o,5,0,1,4
+baseline_llama_8b,1692,90,1529,73
+baseline_mistral_nemo,10148,221,9820,107
+baseline_qwen_7b,691,60,582,49
+repaired_gpt4o,4,0,0,4

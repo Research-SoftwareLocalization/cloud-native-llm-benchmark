@@ -81,3 +81,14 @@
 | `repaired_gpt4o` | `ta` | 10228 | 12 | 1 | 0 | 0 | 0 | 2 | **14** | **0.14%** |
 | `repaired_gpt4o` | `te` | 10228 | 2 | 1 | 0 | 0 | 0 | 2 | **5** | **0.05%** |
 | `repaired_gpt4o` | `zh` | 10228 | 0 | 0 | 0 | 0 | 0 | 1 | **1** | **0.01%** |
+
+### Placeholder Failure Decomposition: Omission vs. Instruction-Induced Hallucination
+
+| Model Suite | Total `%1` Errors | Dropped `%1` (Omission) | Injected `%1` (Prompt Hallucination) | Partial/Altered `%1` |
+| :--- | :--- | :--- | :--- | :--- |
+| `baseline_gemma_9b` | **43** | 38 | **0** | 5 |
+| `baseline_gpt4o` | **5** | 0 | **1** | 4 |
+| `baseline_llama_8b` | **1692** | 90 | **1529** | 73 |
+| `baseline_mistral_nemo` | **10148** | 221 | **9820** | 107 |
+| `baseline_qwen_7b` | **691** | 60 | **582** | 49 |
+| `repaired_gpt4o` | **4** | 0 | **0** | 4 |
