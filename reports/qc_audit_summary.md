@@ -1,9 +1,9 @@
 # Cloud-Native Software Localization: Unified Quality Audit
 
-**Audit Snapshot:** `2026-10-31 15:12 UTC`  
+**Audit Snapshot:** `2026-10-31 15:28 UTC`  
 **Audited Suites (6):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gpt4o`  
 **Corpus Size per Language:** `10,228` strings  
-**Total Confirmed Defect Records:** `44235`  
+**Total Confirmed Defect Records:** `44947`  
 
 ### Empirical Failure Mode & Invariant Breakdown
 
@@ -70,3 +70,14 @@
 | `baseline_qwen_7b` | `te` | 10228 | 0 | 77 | 0 | 389 | 0 | 433 | **891** | **8.71%** |
 | `baseline_qwen_7b` | `zh` | 10228 | 0 | 63 | 0 | 0 | 0 | 53 | **116** | **1.13%** |
 | `repaired_gpt4o` | `ar` | 10228 | 0 | 1 | 0 | 0 | 0 | 0 | **1** | **0.01%** |
+| `repaired_gpt4o` | `bn` | 10228 | 3 | 0 | 0 | 0 | 0 | 26 | **29** | **0.28%** |
+| `repaired_gpt4o` | `de` | 10228 | 0 | 0 | 0 | 0 | 1 | 147 | **148** | **1.45%** |
+| `repaired_gpt4o` | `es` | 10228 | 0 | 0 | 0 | 0 | 0 | 140 | **140** | **1.37%** |
+| `repaired_gpt4o` | `fr` | 10228 | 0 | 0 | 0 | 0 | 0 | 150 | **150** | **1.47%** |
+| `repaired_gpt4o` | `hi` | 10228 | 1 | 0 | 0 | 0 | 0 | 36 | **37** | **0.36%** |
+| `repaired_gpt4o` | `ja` | 10228 | 1 | 0 | 0 | 0 | 0 | 18 | **19** | **0.19%** |
+| `repaired_gpt4o` | `mr` | 10228 | 0 | 1 | 0 | 0 | 0 | 41 | **42** | **0.41%** |
+| `repaired_gpt4o` | `pa` | 10228 | 27 | 0 | 0 | 0 | 0 | 23 | **50** | **0.49%** |
+| `repaired_gpt4o` | `ta` | 10228 | 13 | 1 | 0 | 0 | 0 | 44 | **57** | **0.56%** |
+| `repaired_gpt4o` | `te` | 10228 | 2 | 1 | 0 | 0 | 0 | 14 | **17** | **0.17%** |
+| `repaired_gpt4o` | `zh` | 10228 | 0 | 0 | 0 | 0 | 0 | 23 | **23** | **0.22%** |

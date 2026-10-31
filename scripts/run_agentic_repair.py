@@ -2,10 +2,10 @@ import os
 import sys
 import json
 import re
-import shutil
 import argparse
 from pathlib import Path
 from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from openai import OpenAI
 
 REPO_ROOT = Path("/content/cloud-native-llm-benchmark") if Path("/content/cloud-native-llm-benchmark").exists() else Path(".")
@@ -118,12 +118,15 @@ def build_targeted_prompt(src: str, flawed: str, issues: list, lang_name: str):
 def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool = False,
                          base_url: str = "https://api.openai.com/v1",
                          api_key_env: str = "OPENAI_API_KEY",
-                         model_id: str = "gpt-4o-mini"):
+                         model_id: str = "gpt-4o-mini",
+                         max_workers: int = 8):
     if not dry_run:
         api_key = os.environ.get(api_key_env)
         if not api_key:
             raise ValueError(f"Environment variable '{api_key_env}' is not set.")
         client = OpenAI(base_url=base_url, api_key=api_key)
+    else:
+        client = None
 
     model_dir = DATA_DIR / model_name
     repaired_dir = DATA_DIR / f"repaired_{model_name.replace('baseline_', '')}"
@@ -139,13 +142,13 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
     if target_lang:
         findings = [f for f in findings if f.get("lang") == target_lang]
 
-    print(f"🔍 Loaded {len(findings)} confirmed defect records for `{model_name}` ({target_lang or 'ALL'}). Mode: {'DRY RUN' if dry_run else 'LIVE REPAIR'}")
+    print(f"🔍 Loaded {len(findings)} confirmed defect records for `{model_name}` ({target_lang or 'ALL'}). Mode: {'DRY RUN' if dry_run else f'LIVE PARALLEL ({max_workers} workers)'}")
 
     lang_groups = {}
     for item in findings:
         lang_groups.setdefault(item["lang"], []).append(item)
 
-    for lang_code, defect_list in lang_groups.items():
+    for lang_code, defect_list in sorted(lang_groups.items()):
         lang_name, _ = LANGUAGES[lang_code]
         src_baseline_path = model_dir / f"{lang_code}.txt"
         out_repaired_path = repaired_dir / f"{lang_code}.txt"
@@ -153,23 +156,16 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
         if not src_baseline_path.exists():
             continue
 
-        # Start from existing repaired file if already created, otherwise from raw baseline
         active_input_path = out_repaired_path if out_repaired_path.exists() else src_baseline_path
         with open(active_input_path, "r", encoding="utf-8") as f:
             current_lines = [l.rstrip("\r\n") for l in f]
 
-        repaired_count = 0
-        already_clean = 0
-        failed_repairs = 0
-        trace_entries = []
+        print(f"\n⚡ Processing {lang_code.upper()} ({len(defect_list)} candidate lines)...", flush=True)
 
-        print(f"\n⚡ Processing {lang_code.upper()} ({len(defect_list)} candidate lines)...")
-
-        for record in defect_list:
+        def process_record(record):
             idx = record["line_idx"]
             src = record["source"]
             flawed = current_lines[idx]
-
             confirmed_issues = validate_single_line(src, flawed, lang_code)
 
             trace_record = {
@@ -184,16 +180,12 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
             }
 
             if not confirmed_issues:
-                already_clean += 1
                 trace_record["status"] = "ALREADY_COMPLIANT"
-                trace_entries.append(trace_record)
-                continue
+                return idx, None, "ALREADY_COMPLIANT", trace_record
 
             if dry_run:
-                repaired_count += 1
                 trace_record["status"] = "DRY_RUN_CONFIRMED"
-                trace_entries.append(trace_record)
-                continue
+                return idx, None, "DRY_RUN_CONFIRMED", trace_record
 
             sys_prompt, usr_prompt = build_targeted_prompt(src, flawed, confirmed_issues, lang_name)
             trace_record["repair_prompt"] = sys_prompt
@@ -213,18 +205,39 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
                 trace_record["post_repair_issues"] = post_issues
 
                 if not post_issues:
-                    current_lines[idx] = corrected_hyp
-                    repaired_count += 1
                     trace_record["status"] = "REPAIR_SUCCESS"
+                    return idx, corrected_hyp, "REPAIR_SUCCESS", trace_record
                 else:
-                    failed_repairs += 1
                     trace_record["status"] = "REPAIR_REJECTED_STILL_DEFECTIVE"
-
+                    return idx, None, "FAILED", trace_record
             except Exception as e:
-                failed_repairs += 1
                 trace_record["status"] = f"API_ERROR: {str(e)}"
+                return idx, None, "FAILED", trace_record
 
-            trace_entries.append(trace_record)
+        results = []
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(process_record, rec) for rec in defect_list]
+            for fut in as_completed(futures):
+                results.append(fut.result())
+
+        # Sort by line_idx for deterministic trace logging
+        results.sort(key=lambda x: x[0])
+
+        repaired_count = 0
+        already_clean = 0
+        failed_repairs = 0
+        trace_entries = []
+
+        for idx, new_hyp, status, trace_rec in results:
+            trace_entries.append(trace_rec)
+            if status in ("REPAIR_SUCCESS", "DRY_RUN_CONFIRMED"):
+                repaired_count += 1
+                if new_hyp is not None:
+                    current_lines[idx] = new_hyp
+            elif status == "ALREADY_COMPLIANT":
+                already_clean += 1
+            else:
+                failed_repairs += 1
 
         with open(TRACE_LOG, "a", encoding="utf-8") as trace_out:
             for entry in trace_entries:
@@ -233,9 +246,9 @@ def repair_model_outputs(model_name: str, target_lang: str = None, dry_run: bool
         if not dry_run:
             with open(out_repaired_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(current_lines) + "\n")
-            print(f"✅ Saved repaired output to: {out_repaired_path.relative_to(REPO_ROOT)}")
+            print(f"✅ Saved repaired output to: {out_repaired_path.relative_to(REPO_ROOT)}", flush=True)
 
-        print(f"  📊 {lang_code}: {repaired_count} repaired, {already_clean} already compliant, {failed_repairs} failed.")
+        print(f"  📊 {lang_code}: {repaired_count} repaired, {already_clean} already compliant, {failed_repairs} failed.", flush=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -245,6 +258,7 @@ if __name__ == "__main__":
     parser.add_argument("--base_url", default="https://api.openai.com/v1")
     parser.add_argument("--api_key_env", default="OPENAI_API_KEY")
     parser.add_argument("--model_id", default="gpt-4o-mini")
+    parser.add_argument("--max_workers", type=int, default=8)
     args = parser.parse_args()
     repair_model_outputs(
         args.model,
@@ -252,5 +266,6 @@ if __name__ == "__main__":
         dry_run=args.dry_run,
         base_url=args.base_url,
         api_key_env=args.api_key_env,
-        model_id=args.model_id
+        model_id=args.model_id,
+        max_workers=args.max_workers
     )
