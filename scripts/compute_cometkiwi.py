@@ -1,12 +1,24 @@
 import os
 import subprocess
 import argparse
+import importlib.util
 import pandas as pd
 import torch
 from pathlib import Path
+
+# Patch 0: Update comet/encoders/*.py on disk BEFORE importing comet
+_comet_spec = importlib.util.find_spec("comet")
+if _comet_spec and _comet_spec.origin:
+    _enc_dir = Path(_comet_spec.origin).parent / "encoders"
+    for _py in _enc_dir.glob("*.py"):
+        _txt = _py.read_text(encoding="utf-8")
+        if "last_hidden_states, _, all_layers" in _txt:
+            _py.write_text(
+                _txt.replace("last_hidden_states, _, all_layers", "last_hidden_states, *_, all_layers"),
+                encoding="utf-8"
+            )
+
 from transformers import PreTrainedTokenizerBase, XLMRobertaTokenizer, XLMRobertaTokenizerFast
-import comet.encoders
-from comet.encoders.xlmr import XLMRobertaEncoder
 from comet import download_model, load_from_checkpoint
 
 # Enable A100 Tensor Core acceleration
@@ -24,14 +36,16 @@ for _cls in (PreTrainedTokenizerBase, XLMRobertaTokenizer, XLMRobertaTokenizerFa
     if not hasattr(_cls, "build_inputs_with_special_tokens"):
         setattr(_cls, "build_inputs_with_special_tokens", _xlmr_build_inputs_with_special_tokens)
 
-# Patch 2: Handle 2-tuple vs 3-tuple return in XLMRobertaEncoder.forward in transformers 5.x
+# Patch 2: Dynamic 2-tuple / 3-tuple forward wrapper for any COMET encoder class
 def _patched_xlmr_forward(self, input_ids, attention_mask, **kwargs):
-    last_hidden_states, *_, all_layers = self.model(
+    out = self.model(
         input_ids=input_ids,
         attention_mask=attention_mask,
         output_hidden_states=True,
         return_dict=False,
     )
+    last_hidden_states = out[0]
+    all_layers = out[-1]
     return {
         "sentemb": last_hidden_states[:, 0, :],
         "wordemb": last_hidden_states,
@@ -39,14 +53,12 @@ def _patched_xlmr_forward(self, input_ids, attention_mask, **kwargs):
         "attention_mask": attention_mask,
     }
 
-XLMRobertaEncoder.forward = _patched_xlmr_forward
-
 ALL_LANGS = ["ar", "bn", "de", "es", "fr", "hi", "ja", "mr", "pa", "ta", "te", "zh"]
 MODELS = ["gemma_9b", "gpt4o", "llama_8b", "mistral_nemo", "qwen_7b"]
 
 def read_lines(filepath: Path):
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
-        return [line.rstrip("\r\n") for line in f]
+        return [line.rstrip("\r\n") for l in f]
 
 def git_backup_metrics(out_dir: Path, system_name: str):
     try:
@@ -83,7 +95,6 @@ def build_before_after_delta(df: pd.DataFrame, out_dir: Path):
         delta_df = pd.DataFrame(delta_rows)
         delta_df.to_csv(out_dir / "cometkiwi_before_after_delta.csv", index=False)
 
-        # Model-level summary
         summary_rows = []
         for m in MODELS:
             m_df = delta_df[delta_df["model"] == m]
@@ -131,11 +142,11 @@ def main():
     systems = repaired_suites + baseline_suites
     print(f"🔍 Execution Queue ({len(systems)} suites — Repaired First, Then Baselines):\n   {systems}", flush=True)
 
-    print(f"📦 Loading reference-free QE model: {args.model_name}...", flush=True)
+    print(f"📦 Loading cached reference-free QE model: {args.model_name}...", flush=True)
     model_path = download_model(args.model_name)
     model = load_from_checkpoint(model_path)
-    if not hasattr(model.encoder.tokenizer.__class__, "build_inputs_with_special_tokens"):
-        setattr(model.encoder.tokenizer.__class__, "build_inputs_with_special_tokens", _xlmr_build_inputs_with_special_tokens)
+    setattr(model.encoder.tokenizer.__class__, "build_inputs_with_special_tokens", _xlmr_build_inputs_with_special_tokens)
+    setattr(model.encoder.__class__, "forward", _patched_xlmr_forward)
 
     use_gpus = 1 if torch.cuda.is_available() else 0
     print(f"⚡ Accelerator status: {'GPU (CUDA A100 Tensor Cores)' if use_gpus else 'CPU'}", flush=True)
