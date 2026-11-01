@@ -58,7 +58,7 @@ MODELS = ["gemma_9b", "gpt4o", "llama_8b", "mistral_nemo", "qwen_7b"]
 
 def read_lines(filepath: Path):
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
-        return [line.rstrip("\r\n") for l in f]
+        return [line.rstrip("\r\n") for line in f]
 
 def git_backup_metrics(out_dir: Path, system_name: str):
     try:
