@@ -6,4 +6,5 @@ baseline_mistral_nemo,10148,221,9820,107
 baseline_qwen_7b,691,60,582,49
 repaired_gpt4o,4,0,0,4
 repaired_llama_8b,52,20,12,20
+repaired_mistral_nemo,141,29,87,25
 repaired_qwen_7b,52,7,31,14

@@ -1,9 +1,9 @@
 # Cloud-Native Software Localization: Unified Quality Audit
 
-**Audit Snapshot:** `2026-11-01 05:00 UTC`  
-**Audited Suites (8):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gpt4o, repaired_llama_8b, repaired_qwen_7b`  
+**Audit Snapshot:** `2026-11-01 05:07 UTC`  
+**Audited Suites (9):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gpt4o, repaired_llama_8b, repaired_mistral_nemo, repaired_qwen_7b`  
 **Corpus Size per Language:** `10,228` strings  
-**Total Confirmed Defect Records:** `45517`  
+**Total Confirmed Defect Records:** `45822`  
 
 ### Empirical Failure Mode & Invariant Breakdown
 
@@ -93,6 +93,18 @@
 | `repaired_llama_8b` | `ta` | 10228 | 0 | 4 | 1 | 0 | 0 | 0 | **5** | **0.05%** |
 | `repaired_llama_8b` | `te` | 10228 | 0 | 3 | 1 | 0 | 0 | 0 | **4** | **0.04%** |
 | `repaired_llama_8b` | `zh` | 10228 | 0 | 4 | 1 | 0 | 0 | 0 | **5** | **0.05%** |
+| `repaired_mistral_nemo` | `ar` | 10228 | 0 | 17 | 0 | 0 | 0 | 7 | **24** | **0.23%** |
+| `repaired_mistral_nemo` | `bn` | 10228 | 0 | 12 | 1 | 0 | 0 | 7 | **20** | **0.20%** |
+| `repaired_mistral_nemo` | `de` | 10228 | 0 | 12 | 0 | 0 | 0 | 34 | **46** | **0.45%** |
+| `repaired_mistral_nemo` | `es` | 10228 | 0 | 12 | 1 | 0 | 0 | 18 | **31** | **0.30%** |
+| `repaired_mistral_nemo` | `fr` | 10228 | 0 | 9 | 0 | 0 | 0 | 33 | **42** | **0.41%** |
+| `repaired_mistral_nemo` | `hi` | 10228 | 0 | 8 | 0 | 0 | 0 | 13 | **21** | **0.21%** |
+| `repaired_mistral_nemo` | `ja` | 10228 | 0 | 8 | 0 | 0 | 0 | 2 | **10** | **0.10%** |
+| `repaired_mistral_nemo` | `mr` | 10228 | 0 | 5 | 0 | 0 | 0 | 9 | **14** | **0.14%** |
+| `repaired_mistral_nemo` | `pa` | 10228 | 0 | 7 | 0 | 1 | 0 | 7 | **15** | **0.15%** |
+| `repaired_mistral_nemo` | `ta` | 10228 | 0 | 11 | 0 | 0 | 0 | 5 | **16** | **0.16%** |
+| `repaired_mistral_nemo` | `te` | 10228 | 0 | 33 | 0 | 0 | 0 | 25 | **58** | **0.57%** |
+| `repaired_mistral_nemo` | `zh` | 10228 | 0 | 7 | 0 | 0 | 0 | 1 | **8** | **0.08%** |
 | `repaired_qwen_7b` | `ar` | 10228 | 0 | 5 | 0 | 60 | 0 | 216 | **278** | **2.72%** |
 | `repaired_qwen_7b` | `bn` | 10228 | 134 | 3 | 0 | 58 | 0 | 28 | **218** | **2.13%** |
 | `repaired_qwen_7b` | `de` | 10228 | 2 | 1 | 0 | 0 | 0 | 44 | **47** | **0.46%** |
@@ -117,4 +129,5 @@
 | `baseline_qwen_7b` | **691** | 60 | **582** | 49 |
 | `repaired_gpt4o` | **4** | 0 | **0** | 4 |
 | `repaired_llama_8b` | **52** | 20 | **12** | 20 |
+| `repaired_mistral_nemo` | **141** | 29 | **87** | 25 |
 | `repaired_qwen_7b` | **52** | 7 | **31** | 14 |
