@@ -5,10 +5,14 @@ import pandas as pd
 import torch
 from pathlib import Path
 from transformers import PreTrainedTokenizerBase, XLMRobertaTokenizer, XLMRobertaTokenizerFast
+import comet.encoders
+from comet.encoders.xlmr import XLMRobertaEncoder
 from comet import download_model, load_from_checkpoint
 
+# Enable A100 Tensor Core acceleration
 torch.set_float32_matmul_precision("high")
 
+# Patch 1: Restore build_inputs_with_special_tokens removed in transformers 5.x
 def _xlmr_build_inputs_with_special_tokens(self, token_ids_0, token_ids_1=None):
     cls = [self.cls_token_id]
     sep = [self.sep_token_id]
@@ -20,7 +24,25 @@ for _cls in (PreTrainedTokenizerBase, XLMRobertaTokenizer, XLMRobertaTokenizerFa
     if not hasattr(_cls, "build_inputs_with_special_tokens"):
         setattr(_cls, "build_inputs_with_special_tokens", _xlmr_build_inputs_with_special_tokens)
 
+# Patch 2: Handle 2-tuple vs 3-tuple return in XLMRobertaEncoder.forward in transformers 5.x
+def _patched_xlmr_forward(self, input_ids, attention_mask, **kwargs):
+    last_hidden_states, *_, all_layers = self.model(
+        input_ids=input_ids,
+        attention_mask=attention_mask,
+        output_hidden_states=True,
+        return_dict=False,
+    )
+    return {
+        "sentemb": last_hidden_states[:, 0, :],
+        "wordemb": last_hidden_states,
+        "all_layers": all_layers,
+        "attention_mask": attention_mask,
+    }
+
+XLMRobertaEncoder.forward = _patched_xlmr_forward
+
 ALL_LANGS = ["ar", "bn", "de", "es", "fr", "hi", "ja", "mr", "pa", "ta", "te", "zh"]
+MODELS = ["gemma_9b", "gpt4o", "llama_8b", "mistral_nemo", "qwen_7b"]
 
 def read_lines(filepath: Path):
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
@@ -38,8 +60,46 @@ def git_backup_metrics(out_dir: Path, system_name: str):
     except Exception as e:
         print(f"⚠️ Git backup note: {e}", flush=True)
 
+def build_before_after_delta(df: pd.DataFrame, out_dir: Path):
+    delta_rows = []
+    for m in MODELS:
+        b_name, r_name = f"baseline_{m}", f"repaired_{m}"
+        b_sub = df[df["system"] == b_name].set_index("language")
+        r_sub = df[df["system"] == r_name].set_index("language")
+        if b_sub.empty or r_sub.empty:
+            continue
+        for lang in ALL_LANGS:
+            if lang in b_sub.index and lang in r_sub.index:
+                b_val = float(b_sub.loc[lang, "cometkiwi"])
+                r_val = float(r_sub.loc[lang, "cometkiwi"])
+                delta_rows.append({
+                    "model": m,
+                    "language": lang,
+                    "baseline_cometkiwi": round(b_val, 4),
+                    "repaired_cometkiwi": round(r_val, 4),
+                    "delta_cometkiwi": round(r_val - b_val, 4)
+                })
+    if delta_rows:
+        delta_df = pd.DataFrame(delta_rows)
+        delta_df.to_csv(out_dir / "cometkiwi_before_after_delta.csv", index=False)
+
+        # Model-level summary
+        summary_rows = []
+        for m in MODELS:
+            m_df = delta_df[delta_df["model"] == m]
+            if not m_df.empty:
+                b_mean = m_df["baseline_cometkiwi"].mean()
+                r_mean = m_df["repaired_cometkiwi"].mean()
+                summary_rows.append({
+                    "model": m,
+                    "mean_baseline_cometkiwi": round(b_mean, 4),
+                    "mean_repaired_cometkiwi": round(r_mean, 4),
+                    "mean_delta_cometkiwi": round(r_mean - b_mean, 4)
+                })
+        pd.DataFrame(summary_rows).to_csv(out_dir / "cometkiwi_model_summary.csv", index=False)
+
 def main():
-    parser = argparse.ArgumentParser(description="Compute Reference-Free COMETKiwi QE Scores with Checkpointing")
+    parser = argparse.ArgumentParser(description="Compute Reference-Free COMETKiwi QE Scores (Repaired + Baselines)")
     parser.add_argument("--data_dir", type=str, default="data")
     parser.add_argument("--out_dir", type=str, default="metrics/cometkiwi")
     parser.add_argument("--model_name", type=str, default="Unbabel/wmt22-cometkiwi-da")
@@ -65,13 +125,13 @@ def main():
             completed[(r["system"], r["language"])] = r["cometkiwi"]
         print(f"♻️ Resuming from checkpoint: {len(completed)} (system, lang) pairs already scored.", flush=True)
 
-    systems = sorted([
-        p.name for p in data_dir.iterdir()
-        if p.is_dir() and (p.name.startswith("baseline_") or p.name.startswith("repaired_"))
-    ])
-    print(f"🔍 Discovered {len(systems)} suites to evaluate: {systems}", flush=True)
+    # Order: Score all 5 repaired_* suites FIRST, then all 5 baseline_* suites
+    repaired_suites = sorted([p.name for p in data_dir.iterdir() if p.is_dir() and p.name.startswith("repaired_")])
+    baseline_suites = sorted([p.name for p in data_dir.iterdir() if p.is_dir() and p.name.startswith("baseline_")])
+    systems = repaired_suites + baseline_suites
+    print(f"🔍 Execution Queue ({len(systems)} suites — Repaired First, Then Baselines):\n   {systems}", flush=True)
 
-    print(f"📦 Loading cached reference-free QE model: {args.model_name}...", flush=True)
+    print(f"📦 Loading reference-free QE model: {args.model_name}...", flush=True)
     model_path = download_model(args.model_name)
     model = load_from_checkpoint(model_path)
     if not hasattr(model.encoder.tokenizer.__class__, "build_inputs_with_special_tokens"):
@@ -117,11 +177,12 @@ def main():
             pivot_df = df.pivot(index="system", columns="language", values="cometkiwi")
             pivot_df["Mean"] = pivot_df.mean(axis=1).round(4)
             pivot_df.to_csv(pivot_csv)
+            build_before_after_delta(df, out_dir)
 
         if newly_scored_in_sys > 0:
             git_backup_metrics(out_dir, system)
 
-    print(f"\n🎉 All 10 suites scored! Final results saved to:\n  - {out_csv}\n  - {pivot_csv}", flush=True)
+    print(f"\n🎉 All 10 suites scored! Final results saved to:\n  - {out_csv}\n  - {pivot_csv}\n  - {out_dir / 'cometkiwi_before_after_delta.csv'}\n  - {out_dir / 'cometkiwi_model_summary.csv'}", flush=True)
 
 if __name__ == "__main__":
     main()
