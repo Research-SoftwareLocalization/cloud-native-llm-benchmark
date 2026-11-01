@@ -1,9 +1,9 @@
 # Cloud-Native Software Localization: Unified Quality Audit
 
-**Audit Snapshot:** `2026-11-01 04:55 UTC`  
-**Audited Suites (7):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gpt4o, repaired_llama_8b`  
+**Audit Snapshot:** `2026-11-01 05:00 UTC`  
+**Audited Suites (8):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gpt4o, repaired_llama_8b, repaired_qwen_7b`  
 **Corpus Size per Language:** `10,228` strings  
-**Total Confirmed Defect Records:** `43630`  
+**Total Confirmed Defect Records:** `45517`  
 
 ### Empirical Failure Mode & Invariant Breakdown
 
@@ -93,6 +93,18 @@
 | `repaired_llama_8b` | `ta` | 10228 | 0 | 4 | 1 | 0 | 0 | 0 | **5** | **0.05%** |
 | `repaired_llama_8b` | `te` | 10228 | 0 | 3 | 1 | 0 | 0 | 0 | **4** | **0.04%** |
 | `repaired_llama_8b` | `zh` | 10228 | 0 | 4 | 1 | 0 | 0 | 0 | **5** | **0.05%** |
+| `repaired_qwen_7b` | `ar` | 10228 | 0 | 5 | 0 | 60 | 0 | 216 | **278** | **2.72%** |
+| `repaired_qwen_7b` | `bn` | 10228 | 134 | 3 | 0 | 58 | 0 | 28 | **218** | **2.13%** |
+| `repaired_qwen_7b` | `de` | 10228 | 2 | 1 | 0 | 0 | 0 | 44 | **47** | **0.46%** |
+| `repaired_qwen_7b` | `es` | 10228 | 0 | 5 | 0 | 0 | 0 | 46 | **51** | **0.50%** |
+| `repaired_qwen_7b` | `fr` | 10228 | 0 | 5 | 0 | 0 | 0 | 56 | **61** | **0.60%** |
+| `repaired_qwen_7b` | `hi` | 10228 | 0 | 5 | 0 | 89 | 0 | 111 | **205** | **2.00%** |
+| `repaired_qwen_7b` | `ja` | 10228 | 0 | 3 | 0 | 0 | 0 | 5 | **8** | **0.08%** |
+| `repaired_qwen_7b` | `mr` | 10228 | 0 | 1 | 0 | 26 | 0 | 60 | **87** | **0.85%** |
+| `repaired_qwen_7b` | `pa` | 10228 | 0 | 6 | 0 | 56 | 0 | 314 | **376** | **3.68%** |
+| `repaired_qwen_7b` | `ta` | 10228 | 0 | 11 | 0 | 79 | 0 | 209 | **299** | **2.92%** |
+| `repaired_qwen_7b` | `te` | 10228 | 0 | 4 | 0 | 173 | 0 | 77 | **253** | **2.47%** |
+| `repaired_qwen_7b` | `zh` | 10228 | 0 | 3 | 0 | 0 | 0 | 1 | **4** | **0.04%** |
 
 ### Placeholder Failure Decomposition: Omission vs. Instruction-Induced Hallucination
 
@@ -105,3 +117,4 @@
 | `baseline_qwen_7b` | **691** | 60 | **582** | 49 |
 | `repaired_gpt4o` | **4** | 0 | **0** | 4 |
 | `repaired_llama_8b` | **52** | 20 | **12** | 20 |
+| `repaired_qwen_7b` | **52** | 7 | **31** | 14 |
