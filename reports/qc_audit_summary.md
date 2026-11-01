@@ -1,9 +1,9 @@
 # Cloud-Native Software Localization: Unified Quality Audit
 
-**Audit Snapshot:** `2026-11-01 05:07 UTC`  
-**Audited Suites (9):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gpt4o, repaired_llama_8b, repaired_mistral_nemo, repaired_qwen_7b`  
+**Audit Snapshot:** `2026-11-01 05:19 UTC`  
+**Audited Suites (10):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gemma_9b, repaired_gpt4o, repaired_llama_8b, repaired_mistral_nemo, repaired_qwen_7b`  
 **Corpus Size per Language:** `10,228` strings  
-**Total Confirmed Defect Records:** `45822`  
+**Total Confirmed Defect Records:** `46818`  
 
 ### Empirical Failure Mode & Invariant Breakdown
 
@@ -69,6 +69,18 @@
 | `baseline_qwen_7b` | `ta` | 10228 | 0 | 48 | 0 | 205 | 0 | 638 | **890** | **8.70%** |
 | `baseline_qwen_7b` | `te` | 10228 | 0 | 77 | 0 | 389 | 0 | 431 | **889** | **8.69%** |
 | `baseline_qwen_7b` | `zh` | 10228 | 0 | 63 | 0 | 0 | 0 | 34 | **97** | **0.95%** |
+| `repaired_gemma_9b` | `ar` | 10228 | 26 | 0 | 0 | 0 | 0 | 3 | **29** | **0.28%** |
+| `repaired_gemma_9b` | `bn` | 10228 | 26 | 0 | 0 | 0 | 0 | 17 | **43** | **0.42%** |
+| `repaired_gemma_9b` | `de` | 10228 | 1 | 0 | 0 | 0 | 1 | 69 | **71** | **0.69%** |
+| `repaired_gemma_9b` | `es` | 10228 | 0 | 1 | 0 | 0 | 0 | 41 | **42** | **0.41%** |
+| `repaired_gemma_9b` | `fr` | 10228 | 0 | 0 | 0 | 0 | 0 | 57 | **57** | **0.56%** |
+| `repaired_gemma_9b` | `hi` | 10228 | 1 | 0 | 0 | 0 | 0 | 3 | **4** | **0.04%** |
+| `repaired_gemma_9b` | `ja` | 10228 | 0 | 0 | 0 | 0 | 0 | 4 | **4** | **0.04%** |
+| `repaired_gemma_9b` | `mr` | 10228 | 1 | 0 | 0 | 0 | 0 | 6 | **7** | **0.07%** |
+| `repaired_gemma_9b` | `pa` | 10228 | 20 | 0 | 0 | 0 | 0 | 300 | **320** | **3.13%** |
+| `repaired_gemma_9b` | `ta` | 10228 | 8 | 0 | 0 | 0 | 0 | 37 | **45** | **0.44%** |
+| `repaired_gemma_9b` | `te` | 10228 | 26 | 0 | 0 | 0 | 0 | 344 | **370** | **3.62%** |
+| `repaired_gemma_9b` | `zh` | 10228 | 0 | 0 | 0 | 0 | 0 | 4 | **4** | **0.04%** |
 | `repaired_gpt4o` | `ar` | 10228 | 0 | 1 | 0 | 0 | 0 | 0 | **1** | **0.01%** |
 | `repaired_gpt4o` | `bn` | 10228 | 3 | 0 | 0 | 0 | 0 | 1 | **4** | **0.04%** |
 | `repaired_gpt4o` | `de` | 10228 | 0 | 0 | 0 | 0 | 1 | 80 | **81** | **0.79%** |
@@ -127,6 +139,7 @@
 | `baseline_llama_8b` | **1692** | 90 | **1529** | 73 |
 | `baseline_mistral_nemo` | **10148** | 221 | **9820** | 107 |
 | `baseline_qwen_7b` | **691** | 60 | **582** | 49 |
+| `repaired_gemma_9b` | **1** | 1 | **0** | 0 |
 | `repaired_gpt4o` | **4** | 0 | **0** | 4 |
 | `repaired_llama_8b` | **52** | 20 | **12** | 20 |
 | `repaired_mistral_nemo` | **141** | 29 | **87** | 25 |
