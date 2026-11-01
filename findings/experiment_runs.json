@@ -32,5 +32,30 @@
       "Qwen/Qwen2.5-7B-Instruct (baseline_qwen_7b)",
       "mistralai/Mistral-Nemo-Instruct-2407 (baseline_mistral_nemo)"
     ]
+  },
+  {
+    "audit_event": "Completed 5-Model Compiler-Guided Self-Repair",
+    "timestamp_utc": "2026-11-01T08:23:24+00:00",
+    "infrastructure": "Google Colab NVIDIA A100-SXM4-80GB High-RAM",
+    "baseline_suites": [
+      "baseline_gemma_9b",
+      "baseline_gpt4o",
+      "baseline_llama_8b",
+      "baseline_mistral_nemo",
+      "baseline_qwen_7b"
+    ],
+    "repaired_suites": [
+      "repaired_gemma_9b",
+      "repaired_gpt4o",
+      "repaired_llama_8b",
+      "repaired_mistral_nemo",
+      "repaired_qwen_7b"
+    ],
+    "total_strings_per_tier": 613680,
+    "baseline_total_defects": 43214,
+    "repaired_total_defects": 3604,
+    "overall_defect_reduction_pct": 91.66,
+    "hallucinated_placeholders_before": 11932,
+    "hallucinated_placeholders_after": 130
   }
 ]

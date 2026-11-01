@@ -1,0 +1,6 @@
+model_architecture,baseline_suite,repaired_suite,total_strings_evaluated,baseline_defects,baseline_defect_rate_pct,repaired_defects,repaired_defect_rate_pct,net_defects_eliminated,defect_reduction_pct,baseline_hallucinated_placeholders,repaired_hallucinated_placeholders
+gemma_9b,baseline_gemma_9b,repaired_gemma_9b,122736,21888,17.83,996,0.81,20892,95.45,0,0
+gpt4o,baseline_gpt4o,repaired_gpt4o,122736,1169,0.95,267,0.22,902,77.16,1,0
+llama_8b,baseline_llama_8b,repaired_llama_8b,122736,3008,2.45,149,0.12,2859,95.05,1529,12
+mistral_nemo,baseline_mistral_nemo,repaired_mistral_nemo,122736,10883,8.87,305,0.25,10578,97.2,9820,87
+qwen_7b,baseline_qwen_7b,repaired_qwen_7b,122736,6266,5.11,1887,1.54,4379,69.89,582,31
