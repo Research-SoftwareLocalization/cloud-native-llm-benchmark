@@ -1,9 +1,9 @@
 # Cloud-Native Software Localization: Unified Quality Audit
 
-**Audit Snapshot:** `2026-10-31 15:53 UTC`  
-**Audited Suites (6):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gpt4o`  
+**Audit Snapshot:** `2026-11-01 04:55 UTC`  
+**Audited Suites (7):** `baseline_gemma_9b, baseline_gpt4o, baseline_llama_8b, baseline_mistral_nemo, baseline_qwen_7b, repaired_gpt4o, repaired_llama_8b`  
 **Corpus Size per Language:** `10,228` strings  
-**Total Confirmed Defect Records:** `43481`  
+**Total Confirmed Defect Records:** `43630`  
 
 ### Empirical Failure Mode & Invariant Breakdown
 
@@ -81,6 +81,18 @@
 | `repaired_gpt4o` | `ta` | 10228 | 12 | 1 | 0 | 0 | 0 | 2 | **14** | **0.14%** |
 | `repaired_gpt4o` | `te` | 10228 | 2 | 1 | 0 | 0 | 0 | 2 | **5** | **0.05%** |
 | `repaired_gpt4o` | `zh` | 10228 | 0 | 0 | 0 | 0 | 0 | 1 | **1** | **0.01%** |
+| `repaired_llama_8b` | `ar` | 10228 | 0 | 7 | 1 | 0 | 0 | 2 | **10** | **0.10%** |
+| `repaired_llama_8b` | `bn` | 10228 | 0 | 4 | 0 | 0 | 0 | 5 | **9** | **0.09%** |
+| `repaired_llama_8b` | `de` | 10228 | 0 | 4 | 0 | 0 | 0 | 27 | **31** | **0.30%** |
+| `repaired_llama_8b` | `es` | 10228 | 0 | 5 | 0 | 0 | 0 | 30 | **35** | **0.34%** |
+| `repaired_llama_8b` | `fr` | 10228 | 0 | 5 | 1 | 0 | 0 | 19 | **25** | **0.24%** |
+| `repaired_llama_8b` | `hi` | 10228 | 0 | 5 | 1 | 0 | 0 | 3 | **9** | **0.09%** |
+| `repaired_llama_8b` | `ja` | 10228 | 0 | 4 | 1 | 0 | 0 | 1 | **6** | **0.06%** |
+| `repaired_llama_8b` | `mr` | 10228 | 0 | 3 | 0 | 1 | 0 | 0 | **4** | **0.04%** |
+| `repaired_llama_8b` | `pa` | 10228 | 0 | 4 | 0 | 0 | 0 | 2 | **6** | **0.06%** |
+| `repaired_llama_8b` | `ta` | 10228 | 0 | 4 | 1 | 0 | 0 | 0 | **5** | **0.05%** |
+| `repaired_llama_8b` | `te` | 10228 | 0 | 3 | 1 | 0 | 0 | 0 | **4** | **0.04%** |
+| `repaired_llama_8b` | `zh` | 10228 | 0 | 4 | 1 | 0 | 0 | 0 | **5** | **0.05%** |
 
 ### Placeholder Failure Decomposition: Omission vs. Instruction-Induced Hallucination
 
@@ -92,3 +104,4 @@
 | `baseline_mistral_nemo` | **10148** | 221 | **9820** | 107 |
 | `baseline_qwen_7b` | **691** | 60 | **582** | 49 |
 | `repaired_gpt4o` | **4** | 0 | **0** | 4 |
+| `repaired_llama_8b` | **52** | 20 | **12** | 20 |
