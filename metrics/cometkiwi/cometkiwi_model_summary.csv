@@ -1,0 +1,6 @@
+model,mean_baseline_cometkiwi,mean_repaired_cometkiwi,mean_delta_cometkiwi
+gemma_9b,0.7395,0.7653,0.0259
+gpt4o,0.7877,0.7877,-0.0
+llama_8b,0.7483,0.7531,0.0048
+mistral_nemo,0.6872,0.7136,0.0264
+qwen_7b,0.7046,0.7069,0.0023

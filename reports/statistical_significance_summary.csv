@@ -1,0 +1,6 @@
+model,n_languages,mean_baseline_ck,mean_repaired_ck,mean_delta_ck,paired_t_stat,paired_t_p_value,wilcoxon_p_value,significant_p05
+gemma_9b,12,0.7395,0.7653,0.0259,2.1571,0.05397721,0.0004882812,False
+gpt4o,12,0.7877,0.7877,-0.0,-0.3192,0.7555535,0.9482422,False
+llama_8b,12,0.7483,0.7531,0.0048,3.9198,0.002393805,0.0004882812,True
+mistral_nemo,12,0.6872,0.7136,0.0264,10.5014,4.524662e-07,0.0004882812,True
+qwen_7b,12,0.7046,0.7069,0.0023,3.2052,0.008376505,0.0004882812,True

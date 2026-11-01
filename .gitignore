@@ -1,6 +1,3 @@
 # Ignore model translation outputs inside data subfolders, but keep source/
 
 # Ignore metric results, pivots, and cometkiwi scores until final publication commit
-metrics/results/
-metrics/cometkiwi/
-*.png

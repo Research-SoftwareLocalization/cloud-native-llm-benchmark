@@ -57,5 +57,521 @@
     "overall_defect_reduction_pct": 91.66,
     "hallucinated_placeholders_before": 11932,
     "hallucinated_placeholders_after": 130
+  },
+  {
+    "phase": "cometkiwi_10_suite_evaluation",
+    "model": "Unbabel/wmt22-cometkiwi-da",
+    "total_scored_segments": 1227360,
+    "model_level_summary": [
+      {
+        "model": "gemma_9b",
+        "baseline_cometkiwi": 0.7395,
+        "repaired_cometkiwi": 0.7653,
+        "mean_delta_cometkiwi": 0.0259
+      },
+      {
+        "model": "gpt4o",
+        "baseline_cometkiwi": 0.7877,
+        "repaired_cometkiwi": 0.7877,
+        "mean_delta_cometkiwi": -0.0
+      },
+      {
+        "model": "llama_8b",
+        "baseline_cometkiwi": 0.7483,
+        "repaired_cometkiwi": 0.7531,
+        "mean_delta_cometkiwi": 0.0048
+      },
+      {
+        "model": "mistral_nemo",
+        "baseline_cometkiwi": 0.6872,
+        "repaired_cometkiwi": 0.7136,
+        "mean_delta_cometkiwi": 0.0264
+      },
+      {
+        "model": "qwen_7b",
+        "baseline_cometkiwi": 0.7046,
+        "repaired_cometkiwi": 0.7069,
+        "mean_delta_cometkiwi": 0.0023
+      }
+    ],
+    "statistical_significance": [
+      {
+        "model": "gemma_9b",
+        "n_languages": 12,
+        "mean_baseline_ck": 0.7395,
+        "mean_repaired_ck": 0.7653,
+        "mean_delta_ck": 0.0259,
+        "paired_t_stat": 2.1571,
+        "paired_t_p_value": 0.05397721,
+        "wilcoxon_p_value": 0.0004882812,
+        "significant_p05": false
+      },
+      {
+        "model": "gpt4o",
+        "n_languages": 12,
+        "mean_baseline_ck": 0.7877,
+        "mean_repaired_ck": 0.7877,
+        "mean_delta_ck": -0.0,
+        "paired_t_stat": -0.3192,
+        "paired_t_p_value": 0.7555535,
+        "wilcoxon_p_value": 0.9482422,
+        "significant_p05": false
+      },
+      {
+        "model": "llama_8b",
+        "n_languages": 12,
+        "mean_baseline_ck": 0.7483,
+        "mean_repaired_ck": 0.7531,
+        "mean_delta_ck": 0.0048,
+        "paired_t_stat": 3.9198,
+        "paired_t_p_value": 0.002393805,
+        "wilcoxon_p_value": 0.0004882812,
+        "significant_p05": true
+      },
+      {
+        "model": "mistral_nemo",
+        "n_languages": 12,
+        "mean_baseline_ck": 0.6872,
+        "mean_repaired_ck": 0.7136,
+        "mean_delta_ck": 0.0264,
+        "paired_t_stat": 10.5014,
+        "paired_t_p_value": 4.524662e-07,
+        "wilcoxon_p_value": 0.0004882812,
+        "significant_p05": true
+      },
+      {
+        "model": "qwen_7b",
+        "n_languages": 12,
+        "mean_baseline_ck": 0.7046,
+        "mean_repaired_ck": 0.7069,
+        "mean_delta_ck": 0.0023,
+        "paired_t_stat": 3.2052,
+        "paired_t_p_value": 0.008376505,
+        "wilcoxon_p_value": 0.0004882812,
+        "significant_p05": true
+      }
+    ],
+    "language_level_deltas": [
+      {
+        "model": "gemma_9b",
+        "language": "ar",
+        "baseline_cometkiwi": 0.7383,
+        "repaired_cometkiwi": 0.742,
+        "delta_cometkiwi": 0.0037
+      },
+      {
+        "model": "gemma_9b",
+        "language": "bn",
+        "baseline_cometkiwi": 0.7805,
+        "repaired_cometkiwi": 0.7897,
+        "delta_cometkiwi": 0.0092
+      },
+      {
+        "model": "gemma_9b",
+        "language": "de",
+        "baseline_cometkiwi": 0.7757,
+        "repaired_cometkiwi": 0.778,
+        "delta_cometkiwi": 0.0023
+      },
+      {
+        "model": "gemma_9b",
+        "language": "es",
+        "baseline_cometkiwi": 0.779,
+        "repaired_cometkiwi": 0.7806,
+        "delta_cometkiwi": 0.0016
+      },
+      {
+        "model": "gemma_9b",
+        "language": "fr",
+        "baseline_cometkiwi": 0.7714,
+        "repaired_cometkiwi": 0.7717,
+        "delta_cometkiwi": 0.0003
+      },
+      {
+        "model": "gemma_9b",
+        "language": "hi",
+        "baseline_cometkiwi": 0.7874,
+        "repaired_cometkiwi": 0.7946,
+        "delta_cometkiwi": 0.0072
+      },
+      {
+        "model": "gemma_9b",
+        "language": "ja",
+        "baseline_cometkiwi": 0.7932,
+        "repaired_cometkiwi": 0.7996,
+        "delta_cometkiwi": 0.0064
+      },
+      {
+        "model": "gemma_9b",
+        "language": "mr",
+        "baseline_cometkiwi": 0.7105,
+        "repaired_cometkiwi": 0.7416,
+        "delta_cometkiwi": 0.0311
+      },
+      {
+        "model": "gemma_9b",
+        "language": "pa",
+        "baseline_cometkiwi": 0.5896,
+        "repaired_cometkiwi": 0.7122,
+        "delta_cometkiwi": 0.1226
+      },
+      {
+        "model": "gemma_9b",
+        "language": "ta",
+        "baseline_cometkiwi": 0.7551,
+        "repaired_cometkiwi": 0.7766,
+        "delta_cometkiwi": 0.0215
+      },
+      {
+        "model": "gemma_9b",
+        "language": "te",
+        "baseline_cometkiwi": 0.6251,
+        "repaired_cometkiwi": 0.7268,
+        "delta_cometkiwi": 0.1017
+      },
+      {
+        "model": "gemma_9b",
+        "language": "zh",
+        "baseline_cometkiwi": 0.7676,
+        "repaired_cometkiwi": 0.7704,
+        "delta_cometkiwi": 0.0028
+      },
+      {
+        "model": "gpt4o",
+        "language": "ar",
+        "baseline_cometkiwi": 0.7564,
+        "repaired_cometkiwi": 0.7557,
+        "delta_cometkiwi": -0.0007
+      },
+      {
+        "model": "gpt4o",
+        "language": "bn",
+        "baseline_cometkiwi": 0.8107,
+        "repaired_cometkiwi": 0.811,
+        "delta_cometkiwi": 0.0003
+      },
+      {
+        "model": "gpt4o",
+        "language": "de",
+        "baseline_cometkiwi": 0.7868,
+        "repaired_cometkiwi": 0.7868,
+        "delta_cometkiwi": 0.0
+      },
+      {
+        "model": "gpt4o",
+        "language": "es",
+        "baseline_cometkiwi": 0.7863,
+        "repaired_cometkiwi": 0.7856,
+        "delta_cometkiwi": -0.0007
+      },
+      {
+        "model": "gpt4o",
+        "language": "fr",
+        "baseline_cometkiwi": 0.7804,
+        "repaired_cometkiwi": 0.7796,
+        "delta_cometkiwi": -0.0008
+      },
+      {
+        "model": "gpt4o",
+        "language": "hi",
+        "baseline_cometkiwi": 0.8064,
+        "repaired_cometkiwi": 0.8066,
+        "delta_cometkiwi": 0.0002
+      },
+      {
+        "model": "gpt4o",
+        "language": "ja",
+        "baseline_cometkiwi": 0.8086,
+        "repaired_cometkiwi": 0.8089,
+        "delta_cometkiwi": 0.0003
+      },
+      {
+        "model": "gpt4o",
+        "language": "mr",
+        "baseline_cometkiwi": 0.7824,
+        "repaired_cometkiwi": 0.7826,
+        "delta_cometkiwi": 0.0002
+      },
+      {
+        "model": "gpt4o",
+        "language": "pa",
+        "baseline_cometkiwi": 0.8005,
+        "repaired_cometkiwi": 0.8011,
+        "delta_cometkiwi": 0.0006
+      },
+      {
+        "model": "gpt4o",
+        "language": "ta",
+        "baseline_cometkiwi": 0.779,
+        "repaired_cometkiwi": 0.7791,
+        "delta_cometkiwi": 0.0001
+      },
+      {
+        "model": "gpt4o",
+        "language": "te",
+        "baseline_cometkiwi": 0.7799,
+        "repaired_cometkiwi": 0.78,
+        "delta_cometkiwi": 0.0001
+      },
+      {
+        "model": "gpt4o",
+        "language": "zh",
+        "baseline_cometkiwi": 0.7754,
+        "repaired_cometkiwi": 0.7753,
+        "delta_cometkiwi": -0.0001
+      },
+      {
+        "model": "llama_8b",
+        "language": "ar",
+        "baseline_cometkiwi": 0.7023,
+        "repaired_cometkiwi": 0.7058,
+        "delta_cometkiwi": 0.0035
+      },
+      {
+        "model": "llama_8b",
+        "language": "bn",
+        "baseline_cometkiwi": 0.7657,
+        "repaired_cometkiwi": 0.78,
+        "delta_cometkiwi": 0.0143
+      },
+      {
+        "model": "llama_8b",
+        "language": "de",
+        "baseline_cometkiwi": 0.7601,
+        "repaired_cometkiwi": 0.7624,
+        "delta_cometkiwi": 0.0023
+      },
+      {
+        "model": "llama_8b",
+        "language": "es",
+        "baseline_cometkiwi": 0.766,
+        "repaired_cometkiwi": 0.7683,
+        "delta_cometkiwi": 0.0023
+      },
+      {
+        "model": "llama_8b",
+        "language": "fr",
+        "baseline_cometkiwi": 0.7599,
+        "repaired_cometkiwi": 0.7611,
+        "delta_cometkiwi": 0.0012
+      },
+      {
+        "model": "llama_8b",
+        "language": "hi",
+        "baseline_cometkiwi": 0.7746,
+        "repaired_cometkiwi": 0.7775,
+        "delta_cometkiwi": 0.0029
+      },
+      {
+        "model": "llama_8b",
+        "language": "ja",
+        "baseline_cometkiwi": 0.7816,
+        "repaired_cometkiwi": 0.7876,
+        "delta_cometkiwi": 0.006
+      },
+      {
+        "model": "llama_8b",
+        "language": "mr",
+        "baseline_cometkiwi": 0.7303,
+        "repaired_cometkiwi": 0.7331,
+        "delta_cometkiwi": 0.0028
+      },
+      {
+        "model": "llama_8b",
+        "language": "pa",
+        "baseline_cometkiwi": 0.7458,
+        "repaired_cometkiwi": 0.7583,
+        "delta_cometkiwi": 0.0125
+      },
+      {
+        "model": "llama_8b",
+        "language": "ta",
+        "baseline_cometkiwi": 0.71,
+        "repaired_cometkiwi": 0.7116,
+        "delta_cometkiwi": 0.0016
+      },
+      {
+        "model": "llama_8b",
+        "language": "te",
+        "baseline_cometkiwi": 0.7309,
+        "repaired_cometkiwi": 0.7341,
+        "delta_cometkiwi": 0.0032
+      },
+      {
+        "model": "llama_8b",
+        "language": "zh",
+        "baseline_cometkiwi": 0.7524,
+        "repaired_cometkiwi": 0.7575,
+        "delta_cometkiwi": 0.0051
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "ar",
+        "baseline_cometkiwi": 0.6416,
+        "repaired_cometkiwi": 0.6783,
+        "delta_cometkiwi": 0.0367
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "bn",
+        "baseline_cometkiwi": 0.7163,
+        "repaired_cometkiwi": 0.74,
+        "delta_cometkiwi": 0.0237
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "de",
+        "baseline_cometkiwi": 0.7034,
+        "repaired_cometkiwi": 0.7441,
+        "delta_cometkiwi": 0.0407
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "es",
+        "baseline_cometkiwi": 0.7164,
+        "repaired_cometkiwi": 0.7511,
+        "delta_cometkiwi": 0.0347
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "fr",
+        "baseline_cometkiwi": 0.7012,
+        "repaired_cometkiwi": 0.7391,
+        "delta_cometkiwi": 0.0379
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "hi",
+        "baseline_cometkiwi": 0.7195,
+        "repaired_cometkiwi": 0.7354,
+        "delta_cometkiwi": 0.0159
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "ja",
+        "baseline_cometkiwi": 0.7291,
+        "repaired_cometkiwi": 0.7493,
+        "delta_cometkiwi": 0.0202
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "mr",
+        "baseline_cometkiwi": 0.6632,
+        "repaired_cometkiwi": 0.6868,
+        "delta_cometkiwi": 0.0236
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "pa",
+        "baseline_cometkiwi": 0.6592,
+        "repaired_cometkiwi": 0.6798,
+        "delta_cometkiwi": 0.0206
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "ta",
+        "baseline_cometkiwi": 0.6488,
+        "repaired_cometkiwi": 0.6647,
+        "delta_cometkiwi": 0.0159
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "te",
+        "baseline_cometkiwi": 0.6487,
+        "repaired_cometkiwi": 0.6712,
+        "delta_cometkiwi": 0.0225
+      },
+      {
+        "model": "mistral_nemo",
+        "language": "zh",
+        "baseline_cometkiwi": 0.6988,
+        "repaired_cometkiwi": 0.7237,
+        "delta_cometkiwi": 0.0249
+      },
+      {
+        "model": "qwen_7b",
+        "language": "ar",
+        "baseline_cometkiwi": 0.7104,
+        "repaired_cometkiwi": 0.713,
+        "delta_cometkiwi": 0.0026
+      },
+      {
+        "model": "qwen_7b",
+        "language": "bn",
+        "baseline_cometkiwi": 0.7266,
+        "repaired_cometkiwi": 0.7277,
+        "delta_cometkiwi": 0.0011
+      },
+      {
+        "model": "qwen_7b",
+        "language": "de",
+        "baseline_cometkiwi": 0.757,
+        "repaired_cometkiwi": 0.7577,
+        "delta_cometkiwi": 0.0007
+      },
+      {
+        "model": "qwen_7b",
+        "language": "es",
+        "baseline_cometkiwi": 0.7721,
+        "repaired_cometkiwi": 0.7725,
+        "delta_cometkiwi": 0.0004
+      },
+      {
+        "model": "qwen_7b",
+        "language": "fr",
+        "baseline_cometkiwi": 0.7637,
+        "repaired_cometkiwi": 0.7643,
+        "delta_cometkiwi": 0.0006
+      },
+      {
+        "model": "qwen_7b",
+        "language": "hi",
+        "baseline_cometkiwi": 0.7061,
+        "repaired_cometkiwi": 0.7097,
+        "delta_cometkiwi": 0.0036
+      },
+      {
+        "model": "qwen_7b",
+        "language": "ja",
+        "baseline_cometkiwi": 0.7834,
+        "repaired_cometkiwi": 0.7874,
+        "delta_cometkiwi": 0.004
+      },
+      {
+        "model": "qwen_7b",
+        "language": "mr",
+        "baseline_cometkiwi": 0.6844,
+        "repaired_cometkiwi": 0.6863,
+        "delta_cometkiwi": 0.0019
+      },
+      {
+        "model": "qwen_7b",
+        "language": "pa",
+        "baseline_cometkiwi": 0.6354,
+        "repaired_cometkiwi": 0.6443,
+        "delta_cometkiwi": 0.0089
+      },
+      {
+        "model": "qwen_7b",
+        "language": "ta",
+        "baseline_cometkiwi": 0.5652,
+        "repaired_cometkiwi": 0.5654,
+        "delta_cometkiwi": 0.0002
+      },
+      {
+        "model": "qwen_7b",
+        "language": "te",
+        "baseline_cometkiwi": 0.5832,
+        "repaired_cometkiwi": 0.5855,
+        "delta_cometkiwi": 0.0023
+      },
+      {
+        "model": "qwen_7b",
+        "language": "zh",
+        "baseline_cometkiwi": 0.7676,
+        "repaired_cometkiwi": 0.7684,
+        "delta_cometkiwi": 0.0008
+      }
+    ]
   }
 ]
