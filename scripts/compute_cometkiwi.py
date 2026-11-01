@@ -4,7 +4,21 @@ import argparse
 import pandas as pd
 import torch
 from pathlib import Path
+from transformers import PreTrainedTokenizerBase, XLMRobertaTokenizer, XLMRobertaTokenizerFast
 from comet import download_model, load_from_checkpoint
+
+torch.set_float32_matmul_precision("high")
+
+def _xlmr_build_inputs_with_special_tokens(self, token_ids_0, token_ids_1=None):
+    cls = [self.cls_token_id]
+    sep = [self.sep_token_id]
+    if token_ids_1 is None:
+        return cls + list(token_ids_0) + sep
+    return cls + list(token_ids_0) + sep + sep + list(token_ids_1) + sep
+
+for _cls in (PreTrainedTokenizerBase, XLMRobertaTokenizer, XLMRobertaTokenizerFast):
+    if not hasattr(_cls, "build_inputs_with_special_tokens"):
+        setattr(_cls, "build_inputs_with_special_tokens", _xlmr_build_inputs_with_special_tokens)
 
 ALL_LANGS = ["ar", "bn", "de", "es", "fr", "hi", "ja", "mr", "pa", "ta", "te", "zh"]
 
@@ -29,7 +43,7 @@ def main():
     parser.add_argument("--data_dir", type=str, default="data")
     parser.add_argument("--out_dir", type=str, default="metrics/cometkiwi")
     parser.add_argument("--model_name", type=str, default="Unbabel/wmt22-cometkiwi-da")
-    parser.add_argument("--batch_size", type=int, default=128)
+    parser.add_argument("--batch_size", type=int, default=256)
     args = parser.parse_args()
 
     data_dir = Path(args.data_dir)
@@ -39,12 +53,9 @@ def main():
     pivot_csv = out_dir / "cometkiwi_pivot.csv"
 
     src_file = data_dir / "source" / "en.txt"
-    if not src_file.exists():
-        raise FileNotFoundError(f"Source file missing: {src_file}")
     src_lines = read_lines(src_file)
     print(f"📖 Loaded {len(src_lines)} source strings from {src_file}", flush=True)
 
-    # Load existing checkpoint if present
     completed = {}
     results = []
     if out_csv.exists():
@@ -54,18 +65,20 @@ def main():
             completed[(r["system"], r["language"])] = r["cometkiwi"]
         print(f"♻️ Resuming from checkpoint: {len(completed)} (system, lang) pairs already scored.", flush=True)
 
-    # Dynamically discover all baseline_* and repaired_* directories
     systems = sorted([
         p.name for p in data_dir.iterdir()
         if p.is_dir() and (p.name.startswith("baseline_") or p.name.startswith("repaired_"))
     ])
     print(f"🔍 Discovered {len(systems)} suites to evaluate: {systems}", flush=True)
 
-    print(f"📦 Loading reference-free QE model: {args.model_name}...", flush=True)
+    print(f"📦 Loading cached reference-free QE model: {args.model_name}...", flush=True)
     model_path = download_model(args.model_name)
     model = load_from_checkpoint(model_path)
+    if not hasattr(model.encoder.tokenizer.__class__, "build_inputs_with_special_tokens"):
+        setattr(model.encoder.tokenizer.__class__, "build_inputs_with_special_tokens", _xlmr_build_inputs_with_special_tokens)
+
     use_gpus = 1 if torch.cuda.is_available() else 0
-    print(f"⚡ Accelerator status: {'GPU (CUDA)' if use_gpus else 'CPU'}", flush=True)
+    print(f"⚡ Accelerator status: {'GPU (CUDA A100 Tensor Cores)' if use_gpus else 'CPU'}", flush=True)
 
     for system in systems:
         print(f"\n{'='*55}\nEvaluating Suite: {system}\n{'='*55}", flush=True)
@@ -99,7 +112,6 @@ def main():
             completed[(system, lang)] = mean_score
             newly_scored_in_sys += 1
 
-            # Save checkpoint after every single language
             df = pd.DataFrame(results)
             df.to_csv(out_csv, index=False)
             pivot_df = df.pivot(index="system", columns="language", values="cometkiwi")
@@ -109,7 +121,7 @@ def main():
         if newly_scored_in_sys > 0:
             git_backup_metrics(out_dir, system)
 
-    print(f"\n🎉 All suites scored! Final results saved to:\n  - {out_csv}\n  - {pivot_csv}", flush=True)
+    print(f"\n🎉 All 10 suites scored! Final results saved to:\n  - {out_csv}\n  - {pivot_csv}", flush=True)
 
 if __name__ == "__main__":
     main()
