@@ -61,3 +61,40 @@ Target Dataset: data/source/en.txt (10,228 strings, SHA-256: 464d65825b81856c4cb
 Audited Models (5): baseline_gpt4o, baseline_llama_8b, baseline_gemma_9b, baseline_mistral_nemo, baseline_qwen_7b
 Output Artifacts: reports/qc_audit_summary.md, reports/audit_findings_log.jsonl
 --------------------------------------------------------------------------------
+
+[Run Entry 6: A100 High-RAM Agentic Self-Repair & CometKiwi QE Runtime]
+Execution Phase: Multi-Model Compiler-Guided Self-Repair (vLLM) & Reference-Free QE (CometKiwi)
+Execution Timestamp: 2026-11-01 04:48:45 UTC
+Base Git Commit: b57a6d4b3d1fd91695874b16b61f9ae9ce2788bd
+Host Platform: Linux-6.6.159+-x86_64-with-glibc2.39
+CPU Cores: 12
+Host RAM Summary: MemTotal:       175166460 kB
+Python Version: 3.13.16
+PyTorch Version: 2.13.0+cu130 (CUDA 13.0)
+vLLM Engine Version: 0.32.0
+GPU Hardware: NVIDIA A100-SXM4-80GB, 81920 MiB, 580.82.07, P0, 4
+Package Lock Artifact: requirements-a100-lock.txt
+Detailed JSON Manifest: reports/a100_system_manifest.json
+
+--- Full NVIDIA-SMI Hardware Topology ---
+Sun Nov  1 04:48:44 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.82.07              Driver Version: 580.82.07      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-80GB          Off |   00000000:00:05.0 Off |                    0 |
+| N/A   32C    P0             53W /  400W |       0MiB /  81920MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+--------------------------------------------------------------------------------

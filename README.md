@@ -31,7 +31,7 @@ This repository contains the empirical benchmark suite, 10,228-string cloud-nati
 ## Evaluation Pipeline Status
 - **Translations (12 languages x 5 models)**: Generated.
 - **Quality Audit & Invariant Analysis**: Active.
-- **Automated Metric Scoring (BLEU, chrF++, COMET-22)**: Pending quality audit verification and model-specific self-correction.
+- **Reference-Free Quality Estimation (CometKiwi / `wmt22-cometkiwi-da`) & Deterministic Invariant Verification**: Active across all 5 baseline suites and compiler-guided self-repaired suites.
 
 ## Dataset Provenance
 - **Source Corpus**: `data/source/en.txt` (10,228 real-world software UI strings from KDE/Linux desktop systems).

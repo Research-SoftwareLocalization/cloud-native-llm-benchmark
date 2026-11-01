@@ -77,7 +77,7 @@ def main():
             "--model", model_id,
             "--port", "8000",
             "--gpu-memory-utilization", "0.90",
-            "--max-model-len", "2048",
+            "--max-model-len", "4096",
         ] + item["extra_vllm_args"]
 
         server_proc = subprocess.Popen(vllm_cmd, env=env)

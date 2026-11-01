@@ -1,0 +1,16 @@
+{
+  "capture_timestamp_utc": "2026-11-01 04:48:45 UTC",
+  "git_commit_baseline": "b57a6d4b3d1fd91695874b16b61f9ae9ce2788bd",
+  "execution_phase": "Phase 2 (Open-Weights Agentic Self-Repair) & Phase 3 (CometKiwi Reference-Free QE)",
+  "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "python_version": "3.13.16",
+  "pytorch_version": "2.13.0+cu130",
+  "vllm_version": "0.32.0",
+  "cuda_available": true,
+  "cuda_version": "13.0",
+  "gpu_device_name": "NVIDIA A100-SXM4-80GB",
+  "gpu_vram_gb": 79.25,
+  "nvidia_smi_summary": "NVIDIA A100-SXM4-80GB, 81920 MiB, 580.82.07, P0, 4",
+  "host_cpu_cores": 12,
+  "host_memory_summary": "MemTotal:       175166460 kB\nMemFree:        131479820 kB\nMemAvailable:   171829420 kB\nBuffers:          305500 kB\nCached:         40416300 kB"
+}

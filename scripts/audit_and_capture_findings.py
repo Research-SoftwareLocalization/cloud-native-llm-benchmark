@@ -2,6 +2,7 @@ import os
 import re
 import json
 import datetime
+import pandas as pd
 from pathlib import Path
 
 REPO_ROOT = Path("/content/cloud-native-llm-benchmark") if Path("/content/cloud-native-llm-benchmark").exists() else Path(".")
@@ -70,6 +71,7 @@ def is_legitimate_ntt(src_str: str, lang_code: str = "") -> bool:
 
 with open(SOURCE_FILE, "r", encoding="utf-8") as f:
     source_lines = [l.rstrip("\r\n") for l in f]
+src_placeholders = [sorted(PLACEHOLDER_REGEX.findall(s)) for s in source_lines]
 
 model_dirs = sorted([
     p.name for p in DATA_DIR.iterdir()
@@ -79,15 +81,18 @@ timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%
 
 jsonl_log = REPORTS_DIR / "audit_findings_log.jsonl"
 summary_md = REPORTS_DIR / "qc_audit_summary.md"
+decomp_csv = REPORTS_DIR / "placeholder_error_decomposition.csv"
 
 seen_issue_keys = set()
 summary_rows = []
+decomp_rows = []
 
 print(f"📊 Running Unified QC Audit across {len(model_dirs)} suites: {model_dirs}")
 
 with open(jsonl_log, "w", encoding="utf-8") as jsonl_out:
     for model_name in model_dirs:
         model_dir = DATA_DIR / model_name
+        omitted_p, hallucinated_p, mismatched_p = 0, 0, 0
 
         for code, lang_name, forbidden_re in LANGUAGES:
             file_path = model_dir / f"{code}.txt"
@@ -114,11 +119,17 @@ with open(jsonl_log, "w", encoding="utf-8") as jsonl_out:
                     issues.append("script_contamination")
                     script_contamination += 1
 
-                src_p = sorted(PLACEHOLDER_REGEX.findall(src))
+                src_p = src_placeholders[idx]
                 hyp_p = sorted(PLACEHOLDER_REGEX.findall(hyp))
                 if src_p != hyp_p:
                     issues.append("broken_placeholder")
                     broken_placeholders += 1
+                    if len(src_p) > 0 and len(hyp_p) == 0:
+                        omitted_p += 1
+                    elif len(src_p) == 0 and len(hyp_p) > 0:
+                        hallucinated_p += 1
+                    else:
+                        mismatched_p += 1
 
                 if has_accelerator(src) and not has_accelerator(hyp):
                     issues.append("broken_accelerator")
@@ -165,6 +176,16 @@ with open(jsonl_log, "w", encoding="utf-8") as jsonl_out:
                 defective_count, rate
             ))
 
+        decomp_rows.append({
+            "model_suite": model_name,
+            "total_placeholder_errors": omitted_p + hallucinated_p + mismatched_p,
+            "omitted_placeholder": omitted_p,
+            "hallucinated_placeholder": hallucinated_p,
+            "mismatched_placeholder": mismatched_p
+        })
+
+pd.DataFrame(decomp_rows).to_csv(decomp_csv, index=False)
+
 with open(summary_md, "w", encoding="utf-8") as md_out:
     md_out.write(f"# Cloud-Native Software Localization: Unified Quality Audit\n\n")
     md_out.write(f"**Audit Snapshot:** `{timestamp}`  \n")
@@ -176,5 +197,11 @@ with open(summary_md, "w", encoding="utf-8") as md_out:
     md_out.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
     for r in summary_rows:
         md_out.write(f"| `{r[0]}` | `{r[1]}` | {r[2]} | {r[3]} | {r[4]} | {r[5]} | {r[6]} | {r[7]} | {r[8]} | **{r[9]}** | **{r[10]:.2f}%** |\n")
+
+    md_out.write("\n### Placeholder Failure Decomposition: Omission vs. Instruction-Induced Hallucination\n\n")
+    md_out.write("| Model Suite | Total `%1` Errors | Dropped `%1` (Omission) | Injected `%1` (Prompt Hallucination) | Partial/Altered `%1` |\n")
+    md_out.write("| :--- | :--- | :--- | :--- | :--- |\n")
+    for d in decomp_rows:
+        md_out.write(f"| `{d['model_suite']}` | **{d['total_placeholder_errors']}** | {d['omitted_placeholder']} | **{d['hallucinated_placeholder']}** | {d['mismatched_placeholder']} |\n")
 
 print(f"✅ Unified audit complete. {len(seen_issue_keys)} confirmed defective records logged.")
