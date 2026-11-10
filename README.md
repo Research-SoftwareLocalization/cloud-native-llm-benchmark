@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1392816691.svg)](https://doi.org/10.5281/zenodo.23021740)
+
 # Benchmarking Large Language Models for Cloud-Native Software Localization: Evaluating Generative AI as Intelligent Translation Agents
 
 This repository contains the empirical benchmark suite, 10,228-string cloud-native software UI corpus (OPUS KDE4), deterministic compiler-invariant audit framework, and compiler-guided agentic self-repair results across **5 frontier LLMs** and **12 typologically diverse languages** (120 localization files; 1,227,360 evaluated strings across baseline and repaired tiers).
