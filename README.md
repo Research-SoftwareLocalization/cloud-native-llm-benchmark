@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/1392816691.svg)](https://doi.org/10.5281/zenodo.23021740)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24280788.svg)](https://doi.org/10.5281/zenodo.24280788)
 
 # Invariant-Guided Self-Correction for Cloud-Native Software Localization Pipelines: A 1.22-Million-Segment LLM Benchmark and Dual-Paradigm Evaluation Across High-Resource and Low-Resource Languages
 
@@ -84,6 +84,6 @@ Original code, invariant verification scripts, and documentation are released un
   journal={Language Resources and Evaluation},
   year={2026},
   publisher={Springer Nature},
-  doi={10.5281/zenodo.23021740}
+  doi={10.5281/zenodo.24280788}
 }
 ```
