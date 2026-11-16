@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this benchmark dataset, invariant verifier, or self-correction code, please cite our paper."
+title: "Invariant-Guided Self-Correction for Cloud-Native Software Localization Pipelines: A 1.22-Million-Segment LLM Benchmark and Dual-Paradigm Evaluation Across High-Resource and Low-Resource Languages"
+type: dataset
+authors:
+  - family-names: Sharma
+    given-names: Neeraj Kumar
+    affiliation: "Birla Institute of Technology and Science, Pilani - Hyderabad Campus"
+  - family-names: Panda
+    given-names: Subhrakanta
+    affiliation: "Birla Institute of Technology and Science, Pilani - Hyderabad Campus"
+  - family-names: Neti
+    given-names: Lalita Bhanu Murthy
+    affiliation: "Birla Institute of Technology and Science, Pilani - Hyderabad Campus"
+repository-code: "https://github.com/Research-SoftwareLocalization/cloud-native-llm-benchmark"
+doi: "10.5281/zenodo.23021740"
+date-released: "2026-11-01"
+keywords:
+  - software localization
+  - invariant-guided self-correction
+  - quality estimation
+  - low-resource Indic languages
+  - large language models
+  - deterministic verification
+  - CometKiwi
+license: MIT
