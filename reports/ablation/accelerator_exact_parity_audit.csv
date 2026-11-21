@@ -1,0 +1,11 @@
+suite,boolean_has_acc_failures,exact_source_acc_count_failures
+baseline_gemma_9b,8,8
+baseline_gpt4o,0,0
+baseline_llama_8b,7,7
+baseline_mistral_nemo,6,6
+baseline_qwen_7b,0,0
+repaired_gemma_9b,0,0
+repaired_gpt4o,0,0
+repaired_llama_8b,7,7
+repaired_mistral_nemo,2,2
+repaired_qwen_7b,0,0

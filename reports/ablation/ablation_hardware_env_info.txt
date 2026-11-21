@@ -1,0 +1,31 @@
+=== Ablation & Statistical Upgrade Hardware/Environment Log (vllm_generation) ===
+Timestamp (UTC): 2026-11-21 06:43:25 UTC
+Git Baseline Commit: 6f31ddd9f60f6c6243ad062d9f84ce8ef0fa872d
+OS Platform: Linux-6.6.159+-x86_64-with-glibc2.39
+CPU: Intel(R) Xeon(R) CPU @ 2.20GHz (12 cores) | RAM: 175166460 kB
+GPU: NVIDIA A100-SXM4-80GB, GPU-993105f2-2533-2b7a-6dec-fa22f8e59791, 580.82.07, 81920 MiB, 8.0
+Python: 3.13.16 | PyTorch: 2.14.0+cu130 | CUDA: 13.0
+vLLM: 0.34.0 | Transformers: 5.22.1 | COMET: not_loaded_in_this_phase
+Hugging Face Model Revisions:
+{
+  "google/gemma-2-9b-it": {
+    "hf_commit_sha": "11c9b309abf73637e4b6f9a3fa1e92e615547819",
+    "last_modified": "2024-08-27 19:41:49+00:00"
+  },
+  "meta-llama/Llama-3.1-8B-Instruct": {
+    "hf_commit_sha": "0e9e39f249a16976918f6564b8830bc894c89659",
+    "last_modified": "2024-09-25 17:00:57+00:00"
+  },
+  "mistralai/Mistral-Nemo-Instruct-2407": {
+    "hf_commit_sha": "04d8a90549d23fc6bd7f642064003592df51e9b3",
+    "last_modified": "2025-07-28 17:16:02+00:00"
+  },
+  "Qwen/Qwen2.5-7B-Instruct": {
+    "hf_commit_sha": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "last_modified": "2025-01-12 02:10:10+00:00"
+  },
+  "Unbabel/wmt22-cometkiwi-da": {
+    "hf_commit_sha": "1ad785194e391eebc6c53e2d0776cada8f83179a",
+    "last_modified": "2025-04-07 09:26:01+00:00"
+  }
+}
