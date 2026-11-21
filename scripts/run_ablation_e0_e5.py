@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Component-Wise IGSC Ablation Study (E0-E5), Provenance Capture & Statistical Suite
-# Models: Qwen/Qwen2.5-7B-Instruct and google/gemma-2-9b-it across 12 languages.
+# Hardened with full GPU child-process reaping, 3-profile Gemma-2 vLLM launch, and API retries.
 # Strictly non-destructive: writes ONLY to data/ablation/ and reports/ablation/.
 
 import os
@@ -8,6 +8,8 @@ import re
 import sys
 import json
 import time
+import socket
+import signal
 import platform
 import hashlib
 import argparse
@@ -136,6 +138,93 @@ def query_gpu_mem_mb():
     except Exception:
         pass
     return 0, 0
+
+def kill_vllm_and_wait_vram_free():
+    for pat in ["vllm.entrypoints", "VLLM::", "vllm.worker", "multiprocessing.spawn"]:
+        subprocess.run(["pkill", "-9", "-f", pat], check=False)
+    my_pids = {os.getpid(), os.getppid()}
+    smi_pids = subprocess.run(
+        ["nvidia-smi", "--query-compute-apps=pid", "--format=csv,noheader,nounits"],
+        capture_output=True, text=True
+    ).stdout.splitlines()
+    for p_str in smi_pids:
+        p_str = p_str.strip()
+        if p_str.isdigit() and int(p_str) not in my_pids:
+            try:
+                cmdline = Path(f"/proc/{p_str}/cmdline").read_text(encoding="utf-8", errors="ignore")
+                if "ipykernel" not in cmdline and "colab" not in cmdline:
+                    os.kill(int(p_str), signal.SIGKILL)
+            except Exception:
+                pass
+    for _ in range(15):
+        used_mb, _ = query_gpu_mem_mb()
+        if used_mb < 4000:
+            break
+        time.sleep(2)
+    used_mb, _ = query_gpu_mem_mb()
+    print(f"🧹 GPU VRAM after cleanup: {used_mb} MiB used.", flush=True)
+
+def pick_free_port(preferred=8000):
+    for port in range(preferred, preferred + 20):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(("127.0.0.1", port)) != 0:
+                return port
+    return preferred
+
+def launch_resilient_vllm(model_id: str, extra_args: list):
+    gpu_vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
+    log_path = Path("/tmp/vllm_ablation_server.log")
+
+    if gpu_vram_gb >= 40.0:
+        profiles = [
+            ({}, ["--gpu-memory-utilization", "0.88", "--max-model-len", "2048", "--max-num-seqs", "64"] + extra_args),
+            ({}, ["--gpu-memory-utilization", "0.88", "--max-model-len", "2048", "--max-num-seqs", "64", "--enforce-eager"] + extra_args),
+            ({"VLLM_USE_V1": "0"}, ["--gpu-memory-utilization", "0.88", "--max-model-len", "2048", "--enforce-eager"] + extra_args),
+        ]
+    else:
+        profiles = [
+            ({}, ["--gpu-memory-utilization", "0.92", "--max-model-len", "1536", "--max-num-seqs", "24", "--enforce-eager"] + extra_args),
+            ({"VLLM_USE_V1": "0"}, ["--gpu-memory-utilization", "0.92", "--max-model-len", "1024", "--max-num-seqs", "16", "--enforce-eager"] + extra_args),
+        ]
+
+    for attempt_idx, (extra_env, prof_args) in enumerate(profiles, 1):
+        kill_vllm_and_wait_vram_free()
+        port = pick_free_port(8000)
+        env = os.environ.copy()
+        env["OPENAI_API_KEY"] = "EMPTY"
+        env.update(extra_env)
+
+        cmd = [
+            sys.executable, "-m", "vllm.entrypoints.openai.api_server",
+            "--model", model_id, "--port", str(port)
+        ] + prof_args
+        print(f"⏳ Launching vLLM (Attempt {attempt_idx}/{len(profiles)} on port {port}, env={extra_env}): {' '.join(prof_args)}", flush=True)
+        log_f = open(log_path, "w", encoding="utf-8")
+        proc = subprocess.Popen(cmd, env=env, stdout=log_f, stderr=subprocess.STDOUT, start_new_session=True)
+
+        t0 = time.time()
+        while time.time() - t0 < 600:
+            if proc.poll() is not None:
+                log_f.close()
+                tail = "\n".join(log_path.read_text(encoding="utf-8", errors="ignore").splitlines()[-35:])
+                print(f"⚠️ vLLM attempt {attempt_idx} exited with code {proc.returncode}. Log tail:\n{tail}\n", flush=True)
+                break
+            try:
+                r = httpx.get(f"http://127.0.0.1:{port}/v1/models", timeout=2.5)
+                if r.status_code == 200:
+                    print(f"✅ vLLM server online for `{model_id}` at port {port}!", flush=True)
+                    return proc, log_f, port
+            except Exception:
+                pass
+            time.sleep(4)
+        else:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            except Exception:
+                proc.kill()
+            log_f.close()
+
+    raise RuntimeError(f"❌ All vLLM launch attempts failed for {model_id}. See diagnostic log above.")
 
 def capture_system_and_model_provenance(phase_name: str):
     ABLATION_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -376,93 +465,6 @@ def audit_directory(suite_dir: Path, source_lines: list):
     totals["audit_cpu_s"] = cpu_s
     return totals, per_lang
 
-def compute_table9_and_auxiliary_audits(source_lines: list):
-    df = pd.read_csv(CK_DELTA_CSV)
-    model_order = ["mistral_nemo", "gemma_9b", "llama_8b", "qwen_7b", "gpt4o"]
-    rows = []
-    for m in model_order:
-        sub = df[df["model"] == m].sort_values("language")
-        b = sub["baseline_cometkiwi"].to_numpy(dtype=float)
-        r = sub["repaired_cometkiwi"].to_numpy(dtype=float)
-        d = r - b
-        L = len(d)
-        mean_d = float(np.mean(d))
-        sd_d = float(np.std(d, ddof=1))
-        se_d = sd_d / np.sqrt(L)
-        ci_lo, ci_hi = stats.t.interval(0.95, df=L - 1, loc=mean_d, scale=se_d)
-        t_stat, p_t = stats.ttest_rel(r, b)
-        w_stat, p_w = stats.wilcoxon(d, zero_method="zsplit" if np.any(d == 0) else "wilcox")
-        rows.append({
-            "model": m, "mean_base_ck": round(float(np.mean(b)), 4),
-            "mean_igsc_ck": round(float(np.mean(r)), 4), "mean_delta_ck": round(mean_d, 4),
-            "sd_delta_ck": round(sd_d, 4), "ci95_low": round(float(ci_lo), 4), "ci95_high": round(float(ci_hi), 4),
-            "paired_t": round(float(t_stat), 4), "raw_t_p": float(p_t), "raw_wilcoxon_p": float(p_w),
-            "pos_langs": int(np.sum(d > 0)),
-        })
-    res_df = pd.DataFrame(rows)
-    for col, out_col in [("raw_t_p", "holm_t_p"), ("raw_wilcoxon_p", "holm_wilcoxon_p")]:
-        pvals = res_df[col].to_numpy()
-        M = len(pvals)
-        order = np.argsort(pvals)
-        adj = np.empty(M, dtype=float)
-        running_max = 0.0
-        for rank_idx, orig_idx in enumerate(order):
-            val = min(1.0, pvals[orig_idx] * (M - rank_idx))
-            running_max = max(running_max, val)
-            adj[orig_idx] = running_max
-        res_df[out_col] = adj
-    write_lf_bytes(ABLATION_REPORTS_DIR / "table9_ci_holm_bonferroni.csv", res_df.to_csv(index=False))
-
-    acc_rows = []
-    for s_dir in sorted(p for p in DATA_DIR.iterdir() if p.is_dir() and p.name.startswith(("baseline_", "repaired_"))):
-        bool_fail = exact_src_acc_fail = 0
-        for lang in ALL_LANGS:
-            hyps = (s_dir / f"{lang}.txt").read_text(encoding="utf-8").splitlines()
-            for s, h in zip(source_lines, hyps):
-                s_cnt = len(ACCELERATOR_REGEX.findall(XML_ENTITY_REGEX.sub("", s)))
-                h_cnt = len(ACCELERATOR_REGEX.findall(XML_ENTITY_REGEX.sub("", h)))
-                if s_cnt > 0 and h_cnt == 0:
-                    bool_fail += 1
-                if s_cnt > 0 and h_cnt != s_cnt:
-                    exact_src_acc_fail += 1
-        acc_rows.append({"suite": s_dir.name, "boolean_has_acc_failures": bool_fail, "exact_source_acc_count_failures": exact_src_acc_fail})
-    write_lf_bytes(ABLATION_REPORTS_DIR / "accelerator_exact_parity_audit.csv", pd.DataFrame(acc_rows).to_csv(index=False))
-
-    ntt_non_euro = sum(1 for s in source_lines if len(s.strip()) > 3 and any(c.isalpha() for c in s) and is_legitimate_ntt(s, "hi"))
-    ntt_euro = sum(1 for s in source_lines if len(s.strip()) > 3 and any(c.isalpha() for c in s) and is_legitimate_ntt(s, "de"))
-    ntt_stats = {
-        "total_source_strings": len(source_lines),
-        "curated_known_ntts_lexicon_size": len(KNOWN_NTTS),
-        "universal_ntt_matched_strings": ntt_non_euro,
-        "universal_ntt_pct": round(100.0 * ntt_non_euro / len(source_lines), 2),
-        "european_cognate_inclusive_ntt_strings": ntt_euro,
-        "european_cognate_inclusive_ntt_pct": round(100.0 * ntt_euro / len(source_lines), 2),
-    }
-    write_lf_bytes(ABLATION_REPORTS_DIR / "ntt_corpus_coverage.json", json.dumps(ntt_stats, indent=2) + "\n")
-    print("📊 Saved Table 9 CIs/Holm-Bonferroni CSV, Accelerator Exact-Parity CSV, and NTT Coverage JSON.", flush=True)
-
-def wait_for_vllm(proc, timeout=600):
-    t0 = time.time()
-    while time.time() - t0 < timeout:
-        if proc.poll() is not None:
-            return False
-        try:
-            r = httpx.get("http://localhost:8000/v1/models", timeout=2.0)
-            if r.status_code == 200:
-                return True
-        except Exception:
-            pass
-        time.sleep(4)
-    return False
-
-def kill_vllm():
-    subprocess.run(["pkill", "-f", "vllm.entrypoints"], check=False)
-    time.sleep(3)
-
-def run_phase_init(source_lines: list):
-    capture_system_and_model_provenance("vllm_generation")
-    compute_table9_and_auxiliary_audits(source_lines)
-
 def run_phase_generate_model(source_lines: list, target_short: str):
     TRACES_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -532,32 +534,28 @@ def run_phase_generate_model(source_lines: list, target_short: str):
             continue
 
         print(f"\n{'='*70}\n🚀 LAUNCHING vLLM FOR ABLATION: {model_id}\n{'='*70}", flush=True)
-        kill_vllm()
-        env = os.environ.copy()
-        env["OPENAI_API_KEY"] = "EMPTY"
-        vllm_cmd = [
-            sys.executable, "-m", "vllm.entrypoints.openai.api_server",
-            "--model", model_id,
-            "--port", "8000",
-            "--gpu-memory-utilization", "0.90",
-            "--max-model-len", "4096",
-        ] + m_cfg["extra_vllm_args"]
-        proc = subprocess.Popen(vllm_cmd, env=env)
+        proc, log_f, port = launch_resilient_vllm(model_id, m_cfg["extra_vllm_args"])
         try:
-            if not wait_for_vllm(proc):
-                raise RuntimeError(f"vLLM failed to start for {model_id}")
-            client = OpenAI(base_url="http://localhost:8000/v1", api_key="EMPTY")
+            client = OpenAI(base_url=f"http://127.0.0.1:{port}/v1", api_key="EMPTY", timeout=120.0)
 
             for exp in exps_needed:
                 exp_dir = ABLATION_DATA_DIR / f"{short}_{exp}"
                 exp_dir.mkdir(parents=True, exist_ok=True)
                 trace_fp = TRACES_DIR / f"{short}_{exp}_trace.jsonl"
-                exp_wall = timings.get(f"{short}_{exp}", 0.0)
+
+                done_wall = 0.0
+                if ABLATION_TELEMETRY_LOG.exists():
+                    for ln in ABLATION_TELEMETRY_LOG.read_text(encoding="utf-8").splitlines():
+                        if ln.strip():
+                            tr = json.loads(ln)
+                            if tr.get("model") == short and tr.get("experiment") == exp:
+                                done_wall += float(tr.get("wall_clock_seconds", 0.0))
+                exp_wall = round(done_wall, 2)
 
                 for lang in ALL_LANGS:
                     out_fp = exp_dir / f"{lang}.txt"
                     if out_fp.exists() and len(out_fp.read_text(encoding="utf-8").splitlines()) == len(source_lines):
-                        print(f"  ⏩ [{short}_{exp} -> {lang}] Already exists. Skipping.", flush=True)
+                        print(f"  ⏩ [{short}_{exp} -> {lang}] Already verified on disk (10,228 lines). Skipping.", flush=True)
                         continue
 
                     base_lines = [l.rstrip("\r\n") for l in (DATA_DIR / b_suite / f"{lang}.txt").read_text(encoding="utf-8").splitlines()]
@@ -577,10 +575,22 @@ def run_phase_generate_model(source_lines: list, target_short: str):
                             msgs = [{"role": "user", "content": sys_p + "\n\n" + usr_p}]
                         else:
                             msgs = [{"role": "system", "content": sys_p}, {"role": "user", "content": usr_p}]
-                        resp = client.chat.completions.create(
-                            model=model_id, messages=msgs, temperature=0.0, max_tokens=256
-                        )
-                        cand = resp.choices[0].message.content.strip().replace("\n", " ").replace("\r", "")
+
+                        cand = ""
+                        for retry_idx in range(4):
+                            try:
+                                resp = client.chat.completions.create(
+                                    model=model_id, messages=msgs, temperature=0.0, max_tokens=256
+                                )
+                                cand = (resp.choices[0].message.content or "").strip().replace("\n", " ").replace("\r", "")
+                                break
+                            except Exception as e:
+                                if retry_idx == 3:
+                                    print(f"    ⚠️ Fallback on line {idx} after 4 retries: {e}", flush=True)
+                                    cand = flawed
+                                else:
+                                    time.sleep(1.5 * (retry_idx + 1))
+
                         if (cand.startswith('"') and cand.endswith('"')) or (cand.startswith("'") and cand.endswith("'")):
                             cand = cand[1:-1].strip()
                         final_cand = cand if cand else flawed
@@ -629,12 +639,16 @@ def run_phase_generate_model(source_lines: list, target_short: str):
                 timings[f"{short}_{exp}"] = exp_wall
                 write_lf_bytes(timing_file, json.dumps(timings, indent=2) + "\n")
         finally:
-            proc.terminate()
-            proc.wait()
-            kill_vllm()
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            except Exception:
+                proc.kill()
+            log_f.close()
+            kill_vllm_and_wait_vram_free()
             torch.cuda.empty_cache()
 
 def run_phase_score_and_summarize(source_lines: list):
+    kill_vllm_and_wait_vram_free()
     capture_system_and_model_provenance("cometkiwi_scoring")
 
     timing_file = ABLATION_REPORTS_DIR / "ablation_timings.json"
@@ -731,7 +745,10 @@ def run_phase_score_and_summarize(source_lines: list):
                     continue
                 hyps = [l.rstrip("\r\n") for l in (s_dir / f"{lang}.txt").read_text(encoding="utf-8").splitlines()]
                 payload = [{"src": source_lines[i], "mt": hyps[i]} for i in range(len(source_lines))]
-                pred = ck_model.predict(payload, batch_size=256, gpus=use_gpus)
+                try:
+                    pred = ck_model.predict(payload, batch_size=256, gpus=use_gpus, num_workers=0, progress_bar=False)
+                except TypeError:
+                    pred = ck_model.predict(payload, batch_size=256, gpus=use_gpus)
                 sc = round(float(pred.system_score), 4)
                 ck_done[(s_name, lang)] = sc
                 ck_rows.append({"suite": s_name, "language": lang, "cometkiwi": sc})
@@ -860,8 +877,8 @@ def run_phase_score_and_summarize(source_lines: list):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--phase", choices=["init", "generate", "score", "all"], default="all")
-    parser.add_argument("--model", choices=["qwen_7b", "gemma_9b", "all"], default="all")
+    parser.add_argument("--phase", choices=["generate", "score"], required=True)
+    parser.add_argument("--model", choices=["qwen_7b", "gemma_9b", "all"], default="gemma_9b")
     args = parser.parse_args()
 
     ABLATION_DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -869,15 +886,9 @@ def main():
     verify_checksums_intact("PRE-FLIGHT")
     source_lines = [l.rstrip("\r\n") for l in SOURCE_FILE.read_text(encoding="utf-8").splitlines()]
 
-    if args.phase == "init":
-        run_phase_init(source_lines)
-    elif args.phase == "generate":
+    if args.phase == "generate":
         run_phase_generate_model(source_lines, args.model)
     elif args.phase == "score":
-        run_phase_score_and_summarize(source_lines)
-    else:
-        run_phase_init(source_lines)
-        run_phase_generate_model(source_lines, "all")
         run_phase_score_and_summarize(source_lines)
 
 if __name__ == "__main__":
