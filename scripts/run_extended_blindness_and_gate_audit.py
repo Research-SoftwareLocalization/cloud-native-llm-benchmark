@@ -3,7 +3,6 @@
 #   1. Direct WMT22 CometKiwi evaluation on all 43,214 baseline-defective segments (5 models)
 #   2. 5-Model Post-Repair Verification Gate Ablation (E4 ungated vs. E5 gated across all 5 models)
 #   3. Bootstrap 95% CIs (B=10,000) + Paired Cohen's d_z + Holm-Bonferroni p-values (Table 9)
-#   4. Deterministic seed-42 Stratified Indic Repair Sample for Native-Speaker Validation (Sec. 7)
 # Strictly non-destructive: all 121 core benchmark files remain bit-for-bit untouched.
 
 import os
@@ -325,34 +324,10 @@ def run_five_model_gate_ablation(source_lines: list):
     write_lf_bytes(ABLATION_REPORTS_DIR / "five_model_gate_ablation_e4_vs_e5.csv", gate_df.to_csv(index=False))
     return gate_df
 
-def export_native_expert_validation_sample(source_lines: list):
-    rng = np.random.default_rng(42)
-    sample_rows = []
-    for lang in sorted(INDIC_LANGS):
-        candidates = []
-        for short, b_suite, r_suite, model_id in ALL_FIVE_MODELS:
-            b_lines = read_unix_lines(DATA_DIR / b_suite / f"{lang}.txt")
-            r_lines = read_unix_lines(DATA_DIR / r_suite / f"{lang}.txt")
-            for idx, (s, b_h, r_h) in enumerate(zip(source_lines, b_lines, r_lines)):
-                b_iss = validate_single_line(s, b_h, lang)
-                r_iss = validate_single_line(s, r_h, lang)
-                if b_iss and (not r_iss) and (b_h != r_h):
-                    candidates.append({
-                        "language": lang, "model": short, "line_1indexed": idx + 1,
-                        "english_source": s, "baseline_flawed": b_h,
-                        "igsc_repaired": r_h, "resolved_invariants": "+".join(b_iss)
-                    })
-        chosen_idx = rng.choice(len(candidates), size=min(15, len(candidates)), replace=False)
-        for ci in sorted(chosen_idx):
-            sample_rows.append(candidates[int(ci)])
-    samp_df = pd.DataFrame(sample_rows)
-    write_lf_bytes(ABLATION_REPORTS_DIR / "native_expert_indic_validation_sample.csv", samp_df.to_csv(index=False))
-    return samp_df
 
 def run_phase_subset_qe(source_lines: list):
     t9_df = upgrade_table9_with_bootstrap_and_dz()
     gate_df = run_five_model_gate_ablation(source_lines)
-    samp_df = export_native_expert_validation_sample(source_lines)
 
     defect_records = []
     for short, b_suite, r_suite, model_id in ALL_FIVE_MODELS:
@@ -483,7 +458,6 @@ def run_phase_subset_qe(source_lines: list):
     print("📊 4. UPGRADED TABLE 9 WITH BOOTSTRAP 95% CIs (B=10,000) & COHEN'S d_z")
     print("=" * 96)
     print(t9_df.to_string(index=False), flush=True)
-    print(f"\n📝 Exported {len(samp_df)} stratified Indic repair rows to reports/ablation/native_expert_indic_validation_sample.csv", flush=True)
 
 def main():
     parser = argparse.ArgumentParser()

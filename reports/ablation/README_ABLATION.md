@@ -14,4 +14,3 @@ This directory contains additive, non-destructive artifacts isolating each archi
 - `CHECKSUMS_ABLATION_SHA256.txt` & `CHECKSUMS_ABLATION_MD5.txt`: Cryptographic checksums for all 72 ablation translation files in `data/ablation/`.
 - `five_model_gate_ablation_e4_vs_e5.csv`: Post-repair verification gate ablation (`E4` ungated vs. `E5` gated) across all 5 evaluated models (613,680 segments).
 - `defect_subset_cometkiwi_by_model.csv` & `defect_subset_cometkiwi_by_category.csv`: Direct segment-level WMT22 CometKiwi evaluation on all 43,214 baseline-defective segments, empirically separating statistical dilution from encoder syntactic blindness.
-- `native_expert_indic_validation_sample.csv`: Deterministic seed-42 stratified sample of Indic IGSC repairs across `bn`, `hi`, `mr`, `pa`, `ta`, and `te`.

@@ -14,7 +14,7 @@ authors:
     affiliation: "Birla Institute of Technology and Science, Pilani - Hyderabad Campus"
 repository-code: "https://github.com/Research-SoftwareLocalization/cloud-native-llm-benchmark"
 doi: "10.5281/zenodo.24280788"
-date-released: "2026-11-01"
+date-released: "2026-11-21"
 keywords:
   - software localization
   - invariant-guided self-correction
