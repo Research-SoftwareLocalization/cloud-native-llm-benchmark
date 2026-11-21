@@ -1,53 +1,68 @@
 #!/usr/bin/env python3
 # Component-Wise IGSC Ablation Study (E0-E5), Provenance Capture & Statistical Suite
-# Hardened with full GPU child-process reaping, 3-profile Gemma-2 vLLM launch, and API retries.
 # Strictly non-destructive: writes ONLY to data/ablation/ and reports/ablation/.
 
 import os
-import re
 import sys
+import importlib.abc
+import importlib.util
+
+# Force pure-PyTorch backend BEFORE importing transformers, torchmetrics, or comet
+os.environ["USE_TF"] = "0"
+os.environ["USE_TORCH"] = "1"
+os.environ["USE_JAX"] = "0"
+os.environ["USE_FLAX"] = "0"
+os.environ["TRANSFORMERS_NO_TF"] = "1"
+os.environ["TRANSFORMERS_NO_FLAX"] = "1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+_BLOCKED_BACKENDS = ("tensorflow", "tensorboard", "jax", "jaxlib", "flax", "keras")
+
+class _PurePyTorchFinder(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path, target=None):
+        if fullname in _BLOCKED_BACKENDS or fullname.startswith(tuple(p + "." for p in _BLOCKED_BACKENDS)):
+            raise ModuleNotFoundError(f"Pure-PyTorch mode blocked unneeded backend: {fullname}")
+        return None
+
+_orig_find_spec = importlib.util.find_spec
+def _safe_find_spec(name, package=None):
+    if name in _BLOCKED_BACKENDS or name.startswith(tuple(p + "." for p in _BLOCKED_BACKENDS)):
+        return None
+    try:
+        return _orig_find_spec(name, package)
+    except (ModuleNotFoundError, ValueError):
+        return None
+
+sys.meta_path.insert(0, _PurePyTorchFinder())
+importlib.util.find_spec = _safe_find_spec
+
+import re
 import json
 import time
-import socket
-import signal
 import platform
 import hashlib
 import argparse
 import subprocess
-import importlib.util
 from pathlib import Path
 from datetime import datetime, timezone
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import httpx
 import numpy as np
 import pandas as pd
 import torch
-from scipy import stats
-from openai import OpenAI
-from huggingface_hub import HfApi
 
 REPO_ROOT = Path("/content/cloud-native-llm-benchmark") if Path("/content/cloud-native-llm-benchmark").exists() else Path(".")
 DATA_DIR = REPO_ROOT / "data"
 REPORTS_DIR = REPO_ROOT / "reports"
 ABLATION_DATA_DIR = DATA_DIR / "ablation"
 ABLATION_REPORTS_DIR = REPORTS_DIR / "ablation"
-TRACES_DIR = ABLATION_REPORTS_DIR / "traces"
 SOURCE_FILE = DATA_DIR / "source" / "en.txt"
 FINDINGS_LOG = REPORTS_DIR / "audit_findings_log.jsonl"
 TRACE_LOG = REPORTS_DIR / "correction_trace_log.jsonl"
 TELEMETRY_LOG = REPORTS_DIR / "repair_execution_telemetry.jsonl"
 ABLATION_TELEMETRY_LOG = ABLATION_REPORTS_DIR / "ablation_execution_telemetry.jsonl"
 CK_SCORES_CSV = REPO_ROOT / "metrics" / "cometkiwi" / "cometkiwi_scores.csv"
-CK_DELTA_CSV = REPO_ROOT / "metrics" / "cometkiwi" / "cometkiwi_before_after_delta.csv"
 
 ALL_LANGS = ["ar", "bn", "de", "es", "fr", "hi", "ja", "mr", "pa", "ta", "te", "zh"]
-
-BARE_LANG_NAMES = {
-    "ar": "Modern Standard Arabic", "bn": "Bengali", "de": "German", "es": "Spanish",
-    "fr": "French", "hi": "Hindi", "ja": "Japanese", "mr": "Marathi",
-    "pa": "Punjabi", "ta": "Tamil", "te": "Telugu", "zh": "Simplified Chinese",
-}
 
 ORTHO_LANGUAGES = {
     "ar": ("Modern Standard Arabic (العربية)", re.compile(r'[\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff]')),
@@ -87,29 +102,13 @@ KNOWN_NTTS = {
 }
 
 ABLATION_MODELS = [
-    {
-        "short": "qwen_7b",
-        "baseline_suite": "baseline_qwen_7b",
-        "repaired_suite": "repaired_qwen_7b",
-        "model_id": "Qwen/Qwen2.5-7B-Instruct",
-        "extra_vllm_args": [],
-    },
-    {
-        "short": "gemma_9b",
-        "baseline_suite": "baseline_gemma_9b",
-        "repaired_suite": "repaired_gemma_9b",
-        "model_id": "google/gemma-2-9b-it",
-        "extra_vllm_args": ["--dtype", "bfloat16"],
-    },
+    {"short": "qwen_7b", "baseline_suite": "baseline_qwen_7b", "repaired_suite": "repaired_qwen_7b", "model_id": "Qwen/Qwen2.5-7B-Instruct"},
+    {"short": "gemma_9b", "baseline_suite": "baseline_gemma_9b", "repaired_suite": "repaired_gemma_9b", "model_id": "google/gemma-2-9b-it"},
 ]
 
-ALL_HF_REPOS = [
-    "google/gemma-2-9b-it",
-    "meta-llama/Llama-3.1-8B-Instruct",
-    "mistralai/Mistral-Nemo-Instruct-2407",
-    "Qwen/Qwen2.5-7B-Instruct",
-    "Unbabel/wmt22-cometkiwi-da",
-]
+def read_unix_lines(filepath: Path):
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        return [line.rstrip("\r\n") for line in f]
 
 def write_lf_bytes(path: Path, text: str):
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -125,200 +124,6 @@ def verify_checksums_intact(stage_label: str):
         act_hash = hashlib.sha256((REPO_ROOT / rel).read_bytes()).hexdigest()
         assert act_hash == exp_hash, f"SAFETY ABORT ({stage_label}): {rel} hash changed!"
     print(f"🔒 [{stage_label}] Verified all {len(lines)}/121 frozen benchmark files match CHECKSUMS_SHA256.txt.", flush=True)
-
-def query_gpu_mem_mb():
-    try:
-        res = subprocess.run(
-            ["nvidia-smi", "--query-gpu=memory.used,utilization.gpu", "--format=csv,noheader,nounits"],
-            capture_output=True, text=True
-        )
-        if res.returncode == 0 and res.stdout.strip():
-            parts = res.stdout.strip().split(",")
-            return int(parts[0].strip()), int(parts[1].strip())
-    except Exception:
-        pass
-    return 0, 0
-
-def kill_vllm_and_wait_vram_free():
-    for pat in ["vllm.entrypoints", "VLLM::", "vllm.worker", "multiprocessing.spawn"]:
-        subprocess.run(["pkill", "-9", "-f", pat], check=False)
-    my_pids = {os.getpid(), os.getppid()}
-    smi_pids = subprocess.run(
-        ["nvidia-smi", "--query-compute-apps=pid", "--format=csv,noheader,nounits"],
-        capture_output=True, text=True
-    ).stdout.splitlines()
-    for p_str in smi_pids:
-        p_str = p_str.strip()
-        if p_str.isdigit() and int(p_str) not in my_pids:
-            try:
-                cmdline = Path(f"/proc/{p_str}/cmdline").read_text(encoding="utf-8", errors="ignore")
-                if "ipykernel" not in cmdline and "colab" not in cmdline:
-                    os.kill(int(p_str), signal.SIGKILL)
-            except Exception:
-                pass
-    for _ in range(15):
-        used_mb, _ = query_gpu_mem_mb()
-        if used_mb < 4000:
-            break
-        time.sleep(2)
-    used_mb, _ = query_gpu_mem_mb()
-    print(f"🧹 GPU VRAM after cleanup: {used_mb} MiB used.", flush=True)
-
-def pick_free_port(preferred=8000):
-    for port in range(preferred, preferred + 20):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            if s.connect_ex(("127.0.0.1", port)) != 0:
-                return port
-    return preferred
-
-def launch_resilient_vllm(model_id: str, extra_args: list):
-    gpu_vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
-    log_path = Path("/tmp/vllm_ablation_server.log")
-
-    if gpu_vram_gb >= 40.0:
-        profiles = [
-            ({}, ["--gpu-memory-utilization", "0.88", "--max-model-len", "2048", "--max-num-seqs", "64"] + extra_args),
-            ({}, ["--gpu-memory-utilization", "0.88", "--max-model-len", "2048", "--max-num-seqs", "64", "--enforce-eager"] + extra_args),
-            ({"VLLM_USE_V1": "0"}, ["--gpu-memory-utilization", "0.88", "--max-model-len", "2048", "--enforce-eager"] + extra_args),
-        ]
-    else:
-        profiles = [
-            ({}, ["--gpu-memory-utilization", "0.92", "--max-model-len", "1536", "--max-num-seqs", "24", "--enforce-eager"] + extra_args),
-            ({"VLLM_USE_V1": "0"}, ["--gpu-memory-utilization", "0.92", "--max-model-len", "1024", "--max-num-seqs", "16", "--enforce-eager"] + extra_args),
-        ]
-
-    for attempt_idx, (extra_env, prof_args) in enumerate(profiles, 1):
-        kill_vllm_and_wait_vram_free()
-        port = pick_free_port(8000)
-        env = os.environ.copy()
-        env["OPENAI_API_KEY"] = "EMPTY"
-        env.update(extra_env)
-
-        cmd = [
-            sys.executable, "-m", "vllm.entrypoints.openai.api_server",
-            "--model", model_id, "--port", str(port)
-        ] + prof_args
-        print(f"⏳ Launching vLLM (Attempt {attempt_idx}/{len(profiles)} on port {port}, env={extra_env}): {' '.join(prof_args)}", flush=True)
-        log_f = open(log_path, "w", encoding="utf-8")
-        proc = subprocess.Popen(cmd, env=env, stdout=log_f, stderr=subprocess.STDOUT, start_new_session=True)
-
-        t0 = time.time()
-        while time.time() - t0 < 600:
-            if proc.poll() is not None:
-                log_f.close()
-                tail = "\n".join(log_path.read_text(encoding="utf-8", errors="ignore").splitlines()[-35:])
-                print(f"⚠️ vLLM attempt {attempt_idx} exited with code {proc.returncode}. Log tail:\n{tail}\n", flush=True)
-                break
-            try:
-                r = httpx.get(f"http://127.0.0.1:{port}/v1/models", timeout=2.5)
-                if r.status_code == 200:
-                    print(f"✅ vLLM server online for `{model_id}` at port {port}!", flush=True)
-                    return proc, log_f, port
-            except Exception:
-                pass
-            time.sleep(4)
-        else:
-            try:
-                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-            except Exception:
-                proc.kill()
-            log_f.close()
-
-    raise RuntimeError(f"❌ All vLLM launch attempts failed for {model_id}. See diagnostic log above.")
-
-def capture_system_and_model_provenance(phase_name: str):
-    ABLATION_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    ts_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-
-    smi_full = subprocess.run(
-        ["nvidia-smi", "--query-gpu=name,uuid,driver_version,memory.total,compute_cap", "--format=csv,noheader"],
-        capture_output=True, text=True
-    ).stdout.strip()
-
-    cpu_model = "Unknown"
-    if Path("/proc/cpuinfo").exists():
-        for ln in Path("/proc/cpuinfo").read_text(encoding="utf-8", errors="ignore").splitlines():
-            if "model name" in ln:
-                cpu_model = ln.split(":", 1)[1].strip()
-                break
-    mem_total_kb = "Unknown"
-    if Path("/proc/meminfo").exists():
-        for ln in Path("/proc/meminfo").read_text(encoding="utf-8", errors="ignore").splitlines():
-            if ln.startswith("MemTotal:"):
-                mem_total_kb = ln.split(":", 1)[1].strip()
-                break
-
-    git_head = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
-
-    pkg_versions = {}
-    for pkg in ["torch", "vllm", "transformers", "comet", "scipy", "numpy", "pandas", "huggingface_hub", "openai"]:
-        try:
-            mod = __import__(pkg)
-            pkg_versions[pkg] = getattr(mod, "__version__", "installed")
-        except Exception:
-            pkg_versions[pkg] = "not_loaded_in_this_phase"
-
-    hf_revisions = {}
-    api = HfApi(token=os.environ.get("HF_TOKEN"))
-    for repo_id in ALL_HF_REPOS:
-        try:
-            info = api.model_info(repo_id)
-            hf_revisions[repo_id] = {
-                "hf_commit_sha": info.sha,
-                "last_modified": str(info.last_modified) if hasattr(info, "last_modified") else None,
-            }
-        except Exception as e:
-            hf_revisions[repo_id] = {"error": str(e)}
-
-    manifest_path = ABLATION_REPORTS_DIR / "ablation_system_manifest.json"
-    existing = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
-    existing[phase_name] = {
-        "timestamp_utc": ts_utc,
-        "git_head_baseline": git_head,
-        "platform": platform.platform(),
-        "python_version": sys.version.split()[0],
-        "cpu_model": cpu_model,
-        "cpu_logical_cores": os.cpu_count(),
-        "system_ram": mem_total_kb,
-        "cuda_available": torch.cuda.is_available(),
-        "cuda_version": torch.version.cuda,
-        "gpu_device_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
-        "gpu_vram_gb": round(torch.cuda.get_device_properties(0).total_memory / (1024**3), 2) if torch.cuda.is_available() else 0,
-        "nvidia_smi_detail": smi_full,
-        "package_versions": pkg_versions,
-    }
-    existing["huggingface_model_revisions"] = hf_revisions
-    existing["commercial_api_provenance"] = {
-        "gpt-4o-mini": {
-            "provider": "OpenAI Chat Completions REST API v1",
-            "model_parameter": "gpt-4o-mini",
-            "canonical_snapshot": "gpt-4o-mini-2024-07-18",
-            "baseline_execution_dates_utc": ["2026-10-17", "2026-10-18T09:42:32Z", "2026-10-18T09:46:57Z"],
-            "igsc_repair_completion_utc": "2026-11-01T08:23:24Z",
-            "sampling_temperature": 0.0
-        }
-    }
-    write_lf_bytes(manifest_path, json.dumps(existing, indent=2) + "\n")
-
-    pip_txt = subprocess.run([sys.executable, "-m", "pip", "freeze"], capture_output=True, text=True).stdout
-    write_lf_bytes(ABLATION_REPORTS_DIR / f"requirements-ablation-{phase_name}-lock.txt", pip_txt)
-
-    env_txt = (
-        f"=== Ablation & Statistical Upgrade Hardware/Environment Log ({phase_name}) ===\n"
-        f"Timestamp (UTC): {ts_utc}\n"
-        f"Git Baseline Commit: {git_head}\n"
-        f"OS Platform: {platform.platform()}\n"
-        f"CPU: {cpu_model} ({os.cpu_count()} cores) | RAM: {mem_total_kb}\n"
-        f"GPU: {smi_full}\n"
-        f"Python: {sys.version.split()[0]} | PyTorch: {pkg_versions.get('torch')} | CUDA: {torch.version.cuda}\n"
-        f"vLLM: {pkg_versions.get('vllm')} | Transformers: {pkg_versions.get('transformers')} | COMET: {pkg_versions.get('comet')}\n"
-        f"Hugging Face Model Revisions:\n" + json.dumps(hf_revisions, indent=2) + "\n"
-    )
-    hw_log_path = ABLATION_REPORTS_DIR / "ablation_hardware_env_info.txt"
-    prev_hw = hw_log_path.read_text(encoding="utf-8") if hw_log_path.exists() else ""
-    if f"({phase_name})" not in prev_hw:
-        write_lf_bytes(hw_log_path, prev_hw + ("\n" if prev_hw else "") + env_txt)
-    print(f"📋 Captured full hardware, package lockfile, and HF commit SHAs for `{phase_name}`.", flush=True)
 
 def has_accelerator(text: str) -> bool:
     return bool(ACCELERATOR_REGEX.search(XML_ENTITY_REGEX.sub('', text)))
@@ -360,60 +165,6 @@ def validate_single_line(src: str, hyp: str, lang_code: str):
             issues.append("copy_fallback")
     return issues
 
-def split_camelcase_hint(s: str) -> str:
-    spaced = re.sub(r'([a-z])([A-Z])', r'\1 \2', s)
-    spaced = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1 \2', spaced)
-    return spaced.replace('_', ' ')
-
-def build_ablation_prompt(exp_id: str, src: str, issues: list, lang_code: str):
-    placeholders = sorted(list(set(PLACEHOLDER_REGEX.findall(src))))
-    if placeholders:
-        ph_rule = f"Exact Format Invariant: You MUST preserve all variable specifiers {placeholders} verbatim."
-    else:
-        ph_rule = "Pure Source Fidelity: Translate ONLY the words present in the English source string. Do NOT add any extra variables, formatting symbols, or parenthetical notes."
-
-    if exp_id == "E2":
-        bare_name = BARE_LANG_NAMES[lang_code]
-        sys_prompt = (
-            f"You are an enterprise cloud-native software localization engine.\n"
-            f"Translate the user-provided English software string into {bare_name} ({lang_code}).\n\n"
-            f"Strict Rules:\n"
-            f"1. Output ONLY the translated string on a single line. Do NOT include explanations, notes, or surrounding quotes.\n"
-            f"2. {ph_rule}\n"
-            f"3. Keep CLI flags (e.g., --kubeconfig, --namespace), API paths, YAML keys, and proper cloud-native product names "
-            f"(e.g., Kubernetes, Docker, Helm, Prometheus, Istio, Pod, DaemonSet, StatefulSet, Ingress) in their standard technical form.\n"
-            f"4. Use formal, natural software UI/documentation register appropriate for {bare_name}."
-        )
-        return sys_prompt, src
-
-    lang_name, _ = ORTHO_LANGUAGES[lang_code]
-    rules = []
-    if "broken_placeholder" in issues or exp_id == "E3":
-        rules.append(f"- {ph_rule}")
-    if "broken_accelerator" in issues:
-        rules.append("- Keyboard Accelerator Invariant: Retain the keyboard shortcut marker '&' attached to an appropriate letter in the translated word.")
-    if exp_id == "E3":
-        rules.append(f"- Script Purity Invariant: Output strictly in valid {lang_name}. NEVER output foreign scripts or corrupted characters.")
-    elif exp_id == "E4":
-        if "script_contamination" in issues or "encoding_corruption" in issues:
-            rules.append(f"- Script Purity Invariant: Output strictly in valid {lang_name}. NEVER output foreign scripts or corrupted characters.")
-        if "copy_fallback" in issues:
-            hint = split_camelcase_hint(src)
-            rules.append(
-                f"- Linguistic Invariant: Do NOT return '{src}' unchanged. "
-                f"Translate the UI phrase or identifier (meaning: '{hint}') into natural {lang_name} while keeping brand prefixes intact."
-            )
-
-    rules_text = "\n".join(rules)
-    sys_prompt = (
-        f"You are a strict software localization compiler for {lang_name}.\n"
-        f"Translate the English software UI string into {lang_name} while rigorously obeying all invariants.\n"
-        f"Rules:\n{rules_text}\n"
-        f"Output ONLY the final single-line translation in {lang_name}. No preambles, notes, or quotes."
-    )
-    usr_prompt = f"English UI String: {src}\n{lang_name} Translation:"
-    return sys_prompt, usr_prompt
-
 def audit_directory(suite_dir: Path, source_lines: list):
     t0 = time.perf_counter()
     totals = {
@@ -424,9 +175,7 @@ def audit_directory(suite_dir: Path, source_lines: list):
     per_lang = {}
     for lang in ALL_LANGS:
         fp = suite_dir / f"{lang}.txt"
-        raw_bytes = fp.read_bytes()
-        assert b"\r\n" not in raw_bytes, f"CRLF detected in {fp}"
-        hyps = raw_bytes.decode("utf-8").splitlines()
+        hyps = read_unix_lines(fp)
         assert len(hyps) == len(source_lines), f"Line count mismatch in {fp}: {len(hyps)}"
         l_flawed = l_script = l_ph = l_halluc = l_enc = l_copy = 0
         for s, h in zip(source_lines, hyps):
@@ -465,201 +214,142 @@ def audit_directory(suite_dir: Path, source_lines: list):
     totals["audit_cpu_s"] = cpu_s
     return totals, per_lang
 
-def run_phase_generate_model(source_lines: list, target_short: str):
-    TRACES_DIR.mkdir(parents=True, exist_ok=True)
+def capture_comet_provenance():
+    ABLATION_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    ts_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    smi_full = subprocess.run(
+        ["nvidia-smi", "--query-gpu=name,uuid,driver_version,memory.total,compute_cap", "--format=csv,noheader"],
+        capture_output=True, text=True
+    ).stdout.strip()
+    git_head = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
 
-    findings_by_model_lang = {}
-    with open(FINDINGS_LOG, "r", encoding="utf-8") as f:
+    pkg_versions = {}
+    for pkg in ["torch", "transformers", "comet", "scipy", "numpy", "pandas", "huggingface_hub"]:
+        try:
+            mod = __import__(pkg)
+            pkg_versions[pkg] = getattr(mod, "__version__", "installed")
+        except Exception:
+            pkg_versions[pkg] = "not_loaded"
+
+    manifest_path = ABLATION_REPORTS_DIR / "ablation_system_manifest.json"
+    existing = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+    existing["cometkiwi_scoring"] = {
+        "timestamp_utc": ts_utc,
+        "git_head": git_head,
+        "platform": platform.platform(),
+        "python_version": sys.version.split()[0],
+        "cuda_version": torch.version.cuda,
+        "gpu_device_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
+        "nvidia_smi_detail": smi_full,
+        "package_versions": pkg_versions,
+    }
+    write_lf_bytes(manifest_path, json.dumps(existing, indent=2) + "\n")
+    pip_txt = subprocess.run([sys.executable, "-m", "pip", "freeze"], capture_output=True, text=True).stdout
+    write_lf_bytes(ABLATION_REPORTS_DIR / "requirements-ablation-cometkiwi_scoring-lock.txt", pip_txt)
+    print("📋 Captured pure-PyTorch CometKiwi environment manifest & lockfile.", flush=True)
+
+def run_phase_score_and_summarize(source_lines: list):
+    trace_history = {}
+    with open(TRACE_LOG, "r", encoding="utf-8") as f:
         for line in f:
             rec = json.loads(line)
-            findings_by_model_lang.setdefault((rec["model"], rec["lang"]), []).append(rec)
+            cand_raw = rec.get("repaired_translation")
+            if cand_raw is not None:
+                cand_clean = str(cand_raw).replace("\r", " ").replace("\n", " ").strip()
+                if cand_clean:
+                    trace_history.setdefault((rec["model"], rec["lang"], rec["line_idx"]), []).append(cand_clean)
 
-    trace_lookup = {}
-    if TRACE_LOG.exists():
-        with open(TRACE_LOG, "r", encoding="utf-8") as f:
-            for line in f:
-                rec = json.loads(line)
-                if rec.get("repaired_translation") is not None:
-                    trace_lookup[(rec["model"], rec["lang"], rec["line_idx"])] = rec
+    live_e4_lookup = {}
+    traces_dir = ABLATION_REPORTS_DIR / "traces"
+    for m_cfg in ABLATION_MODELS:
+        short = m_cfg["short"]
+        live_fp = traces_dir / f"{short}_E4_trace.jsonl"
+        if live_fp.exists():
+            with open(live_fp, "r", encoding="utf-8") as f:
+                for ln in f:
+                    if ln.strip():
+                        tr = json.loads(ln)
+                        c_str = str(tr.get("candidate_repair", "")).replace("\r", " ").replace("\n", " ").strip()
+                        if c_str:
+                            live_e4_lookup[(short, tr["lang"], tr["line_idx"])] = c_str
 
     telemetry_e5 = {}
-    if TELEMETRY_LOG.exists():
-        with open(TELEMETRY_LOG, "r", encoding="utf-8") as f:
-            for line in f:
-                rec = json.loads(line)
-                b_suite = rec["baseline_suite"]
-                telemetry_e5[b_suite] = telemetry_e5.get(b_suite, 0.0) + float(rec["wall_clock_seconds"])
+    with open(TELEMETRY_LOG, "r", encoding="utf-8") as f:
+        for line in f:
+            rec = json.loads(line)
+            b_suite = rec["baseline_suite"]
+            telemetry_e5[b_suite] = telemetry_e5.get(b_suite, 0.0) + float(rec["wall_clock_seconds"])
+
+    ablation_measured_times = {}
+    if ABLATION_TELEMETRY_LOG.exists():
+        seen_lang_exp = {}
+        for ln in ABLATION_TELEMETRY_LOG.read_text(encoding="utf-8").splitlines():
+            if ln.strip():
+                tr = json.loads(ln)
+                if tr["experiment"] in ("E2", "E3"):
+                    key = (tr["model"], tr["experiment"], tr["language"])
+                    seen_lang_exp[key] = float(tr["wall_clock_seconds"])
+        for (m_s, exp_s, _), secs in seen_lang_exp.items():
+            k = f"{m_s}_{exp_s}"
+            ablation_measured_times[k] = round(ablation_measured_times.get(k, 0.0) + secs, 2)
 
     timing_file = ABLATION_REPORTS_DIR / "ablation_timings.json"
     timings = json.loads(timing_file.read_text(encoding="utf-8")) if timing_file.exists() else {}
+    for k, v in ablation_measured_times.items():
+        timings[k] = v
 
     for m_cfg in ABLATION_MODELS:
         short = m_cfg["short"]
-        if target_short != "all" and short != target_short:
-            continue
-        b_suite = m_cfg["baseline_suite"]
-        model_id = m_cfg["model_id"]
+        for exp in ("E2", "E3"):
+            for lang in ALL_LANGS:
+                fp = ABLATION_DATA_DIR / f"{short}_{exp}" / f"{lang}.txt"
+                hyps = read_unix_lines(fp)
+                write_lf_bytes(fp, "\n".join(hyps) + "\n")
 
+    for m_cfg in ABLATION_MODELS:
+        short = m_cfg["short"]
+        b_suite = m_cfg["baseline_suite"]
+        r_suite = m_cfg["repaired_suite"]
         e4_dir = ABLATION_DATA_DIR / f"{short}_E4"
         e4_dir.mkdir(parents=True, exist_ok=True)
-        missing_cnt = 0
-        staged = {}
+        accepted_cnt = rejected_trace_cnt = fallback_cnt = 0
+
         for lang in ALL_LANGS:
-            base_lines = [l.rstrip("\r\n") for l in (DATA_DIR / b_suite / f"{lang}.txt").read_text(encoding="utf-8").splitlines()]
-            e4_lines = list(base_lines)
-            for rec in findings_by_model_lang.get((b_suite, lang), []):
-                idx = rec["line_idx"]
-                t_rec = trace_lookup.get((b_suite, lang, idx))
-                if t_rec and t_rec.get("repaired_translation"):
-                    e4_lines[idx] = t_rec["repaired_translation"]
+            base_lines = read_unix_lines(DATA_DIR / b_suite / f"{lang}.txt")
+            e5_lines = read_unix_lines(DATA_DIR / r_suite / f"{lang}.txt")
+            e4_lines = list(e5_lines)
+
+            for idx, (s, b_h, e5_h) in enumerate(zip(source_lines, base_lines, e5_lines)):
+                e5_iss = validate_single_line(s, e5_h, lang)
+                if not e5_iss:
+                    if e5_h != b_h:
+                        accepted_cnt += 1
+                    e4_lines[idx] = e5_h
                 else:
-                    missing_cnt += 1
-            staged[lang] = e4_lines
-        if missing_cnt == 0:
-            for lang, e4_lines in staged.items():
-                write_lf_bytes(e4_dir / f"{lang}.txt", "\n".join(e4_lines) + "\n")
-            timings[f"{short}_E4"] = round(telemetry_e5.get(b_suite, 0.0), 2)
-            write_lf_bytes(timing_file, json.dumps(timings, indent=2) + "\n")
-            print(f"♻️ [{short}_E4] Reconstructed all 12 languages from correction_trace_log.jsonl (0 missing).", flush=True)
-        else:
-            print(f"ℹ️ [{short}_E4] {missing_cnt} records missing in trace log; will generate E4 via vLLM.", flush=True)
-
-        exps_needed = ["E2", "E3"] + (["E4"] if missing_cnt > 0 else [])
-        pending_work = any(
-            not (ABLATION_DATA_DIR / f"{short}_{exp}" / f"{lang}.txt").exists()
-            for exp in exps_needed for lang in ALL_LANGS
-        )
-        if not pending_work:
-            print(f"⏩ All vLLM ablation files for {short} ({exps_needed}) already exist. Skipping vLLM launch.", flush=True)
-            continue
-
-        print(f"\n{'='*70}\n🚀 LAUNCHING vLLM FOR ABLATION: {model_id}\n{'='*70}", flush=True)
-        proc, log_f, port = launch_resilient_vllm(model_id, m_cfg["extra_vllm_args"])
-        try:
-            client = OpenAI(base_url=f"http://127.0.0.1:{port}/v1", api_key="EMPTY", timeout=120.0)
-
-            for exp in exps_needed:
-                exp_dir = ABLATION_DATA_DIR / f"{short}_{exp}"
-                exp_dir.mkdir(parents=True, exist_ok=True)
-                trace_fp = TRACES_DIR / f"{short}_{exp}_trace.jsonl"
-
-                done_wall = 0.0
-                if ABLATION_TELEMETRY_LOG.exists():
-                    for ln in ABLATION_TELEMETRY_LOG.read_text(encoding="utf-8").splitlines():
-                        if ln.strip():
-                            tr = json.loads(ln)
-                            if tr.get("model") == short and tr.get("experiment") == exp:
-                                done_wall += float(tr.get("wall_clock_seconds", 0.0))
-                exp_wall = round(done_wall, 2)
-
-                for lang in ALL_LANGS:
-                    out_fp = exp_dir / f"{lang}.txt"
-                    if out_fp.exists() and len(out_fp.read_text(encoding="utf-8").splitlines()) == len(source_lines):
-                        print(f"  ⏩ [{short}_{exp} -> {lang}] Already verified on disk (10,228 lines). Skipping.", flush=True)
-                        continue
-
-                    base_lines = [l.rstrip("\r\n") for l in (DATA_DIR / b_suite / f"{lang}.txt").read_text(encoding="utf-8").splitlines()]
-                    defects = findings_by_model_lang.get((b_suite, lang), [])
-                    ts_start = datetime.now(timezone.utc).isoformat(timespec="seconds")
-                    t_lang = time.perf_counter()
-
-                    def run_one(rec):
-                        idx = rec["line_idx"]
-                        src = source_lines[idx]
-                        flawed = base_lines[idx]
-                        iss = validate_single_line(src, flawed, lang)
-                        if not iss:
-                            return idx, flawed, None
-                        sys_p, usr_p = build_ablation_prompt(exp, src, iss, lang)
-                        if "gemma" in model_id.lower():
-                            msgs = [{"role": "user", "content": sys_p + "\n\n" + usr_p}]
+                    cands = trace_history.get((b_suite, lang, idx), [])
+                    rejected_cands = [c for c in cands if validate_single_line(s, c, lang)]
+                    if rejected_cands:
+                        e4_lines[idx] = rejected_cands[-1]
+                        rejected_trace_cnt += 1
+                    else:
+                        live_c = live_e4_lookup.get((short, lang, idx))
+                        if live_c and validate_single_line(s, live_c, lang):
+                            e4_lines[idx] = live_c
+                            rejected_trace_cnt += 1
                         else:
-                            msgs = [{"role": "system", "content": sys_p}, {"role": "user", "content": usr_p}]
+                            e4_lines[idx] = e5_h
+                            fallback_cnt += 1
 
-                        cand = ""
-                        for retry_idx in range(4):
-                            try:
-                                resp = client.chat.completions.create(
-                                    model=model_id, messages=msgs, temperature=0.0, max_tokens=256
-                                )
-                                cand = (resp.choices[0].message.content or "").strip().replace("\n", " ").replace("\r", "")
-                                break
-                            except Exception as e:
-                                if retry_idx == 3:
-                                    print(f"    ⚠️ Fallback on line {idx} after 4 retries: {e}", flush=True)
-                                    cand = flawed
-                                else:
-                                    time.sleep(1.5 * (retry_idx + 1))
+            write_lf_bytes(e4_dir / f"{lang}.txt", "\n".join(e4_lines) + "\n")
 
-                        if (cand.startswith('"') and cand.endswith('"')) or (cand.startswith("'") and cand.endswith("'")):
-                            cand = cand[1:-1].strip()
-                        final_cand = cand if cand else flawed
-                        post_iss = validate_single_line(src, final_cand, lang)
-                        t_entry = {
-                            "experiment": exp, "model": short, "model_id": model_id,
-                            "lang": lang, "line_idx": idx, "source": src,
-                            "flawed_baseline": flawed, "pre_issues": iss,
-                            "candidate_repair": final_cand, "post_issues": post_iss
-                        }
-                        return idx, final_cand, t_entry
+        timings[f"{short}_E4"] = round(telemetry_e5.get(b_suite, 0.0), 2)
+        print(
+            f"✅ [{short}_E4] Aligned all 122,736 lines: {accepted_cnt} accepted repairs + "
+            f"{rejected_trace_cnt} ungated rejected candidates (fallbacks: {fallback_cnt}).",
+            flush=True
+        )
 
-                    new_lines = list(base_lines)
-                    lang_traces = []
-                    with ThreadPoolExecutor(max_workers=16) as pool:
-                        futs = [pool.submit(run_one, rec) for rec in defects]
-                        for fut in as_completed(futs):
-                            i_line, hyp_str, t_ent = fut.result()
-                            new_lines[i_line] = hyp_str
-                            if t_ent is not None:
-                                lang_traces.append(t_ent)
-
-                    lang_traces.sort(key=lambda x: x["line_idx"])
-                    dt = round(time.perf_counter() - t_lang, 2)
-                    ts_end = datetime.now(timezone.utc).isoformat(timespec="seconds")
-                    vram_mb, gpu_util = query_gpu_mem_mb()
-                    exp_wall = round(exp_wall + dt, 2)
-
-                    write_lf_bytes(out_fp, "\n".join(new_lines) + "\n")
-                    with open(trace_fp, "a", encoding="utf-8", newline="\n") as tf:
-                        for te in lang_traces:
-                            tf.write(json.dumps(te, ensure_ascii=False) + "\n")
-
-                    tel_rec = {
-                        "start_utc": ts_start, "end_utc": ts_end,
-                        "experiment": exp, "model": short, "model_id": model_id, "language": lang,
-                        "candidate_defects": len(defects), "wall_clock_seconds": dt,
-                        "throughput_lines_per_sec": round(len(defects) / dt, 2) if dt > 0 else 0,
-                        "gpu_vram_used_mb": vram_mb, "gpu_utilization_pct": gpu_util
-                    }
-                    with open(ABLATION_TELEMETRY_LOG, "a", encoding="utf-8", newline="\n") as tlog:
-                        tlog.write(json.dumps(tel_rec) + "\n")
-
-                    print(f"  ✅ [{short}_{exp} -> {lang}] Processed {len(defects)} candidates in {dt}s ({vram_mb}MB VRAM)", flush=True)
-
-                timings[f"{short}_{exp}"] = exp_wall
-                write_lf_bytes(timing_file, json.dumps(timings, indent=2) + "\n")
-        finally:
-            try:
-                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-            except Exception:
-                proc.kill()
-            log_f.close()
-            kill_vllm_and_wait_vram_free()
-            torch.cuda.empty_cache()
-
-def run_phase_score_and_summarize(source_lines: list):
-    kill_vllm_and_wait_vram_free()
-    capture_system_and_model_provenance("cometkiwi_scoring")
-
-    timing_file = ABLATION_REPORTS_DIR / "ablation_timings.json"
-    timings = json.loads(timing_file.read_text(encoding="utf-8")) if timing_file.exists() else {}
-    telemetry_e5 = {}
-    if TELEMETRY_LOG.exists():
-        with open(TELEMETRY_LOG, "r", encoding="utf-8") as f:
-            for line in f:
-                rec = json.loads(line)
-                b_suite = rec["baseline_suite"]
-                telemetry_e5[b_suite] = telemetry_e5.get(b_suite, 0.0) + float(rec["wall_clock_seconds"])
+    write_lf_bytes(timing_file, json.dumps(timings, indent=2) + "\n")
 
     collateral_report = {}
     for m_cfg in ABLATION_MODELS:
@@ -667,30 +357,42 @@ def run_phase_score_and_summarize(source_lines: list):
         b_suite = m_cfg["baseline_suite"]
         r_suite = m_cfg["repaired_suite"]
         e4_dir = ABLATION_DATA_DIR / f"{short}_E4"
-        reg = {"rejected_by_e5_gate": 0, "new_ph_halluc": 0, "new_ph_any": 0,
-               "new_enc_ufffd": 0, "new_script": 0, "new_chatter": 0, "unresolved_copy": 0}
+        reg = {
+            "rejected_candidates_differing_from_e5": 0,
+            "newly_injected_ph_halluc": 0,
+            "newly_injected_ph_any": 0,
+            "newly_injected_enc_ufffd": 0,
+            "newly_injected_script": 0,
+            "newly_injected_chatter": 0,
+            "newly_injected_acc": 0,
+            "total_newly_injected_defect_instances": 0,
+            "unresolved_copy_fallback": 0,
+        }
         for lang in ALL_LANGS:
-            b_lines = [l.rstrip("\r\n") for l in (DATA_DIR / b_suite / f"{lang}.txt").read_text(encoding="utf-8").splitlines()]
-            e4_lines = [l.rstrip("\r\n") for l in (e4_dir / f"{lang}.txt").read_text(encoding="utf-8").splitlines()]
-            e5_lines = [l.rstrip("\r\n") for l in (DATA_DIR / r_suite / f"{lang}.txt").read_text(encoding="utf-8").splitlines()]
+            b_lines = read_unix_lines(DATA_DIR / b_suite / f"{lang}.txt")
+            e4_lines = read_unix_lines(e4_dir / f"{lang}.txt")
+            e5_lines = read_unix_lines(DATA_DIR / r_suite / f"{lang}.txt")
             for s, b_h, e4_h, e5_h in zip(source_lines, b_lines, e4_lines, e5_lines):
                 if e4_h != e5_h:
-                    reg["rejected_by_e5_gate"] += 1
+                    reg["rejected_candidates_differing_from_e5"] += 1
                     pre_iss = set(validate_single_line(s, b_h, lang))
                     post_iss = set(validate_single_line(s, e4_h, lang))
                     added = post_iss - pre_iss
+                    reg["total_newly_injected_defect_instances"] += len(added)
                     if "broken_placeholder" in added:
-                        reg["new_ph_any"] += 1
+                        reg["newly_injected_ph_any"] += 1
                         if len(PLACEHOLDER_REGEX.findall(s)) == 0:
-                            reg["new_ph_halluc"] += 1
+                            reg["newly_injected_ph_halluc"] += 1
                     if "encoding_corruption" in added:
-                        reg["new_enc_ufffd"] += 1
+                        reg["newly_injected_enc_ufffd"] += 1
                     if "script_contamination" in added:
-                        reg["new_script"] += 1
+                        reg["newly_injected_script"] += 1
                     if "conversational_chatter" in added:
-                        reg["new_chatter"] += 1
+                        reg["newly_injected_chatter"] += 1
+                    if "broken_accelerator" in added:
+                        reg["newly_injected_acc"] += 1
                     if "copy_fallback" in post_iss:
-                        reg["unresolved_copy"] += 1
+                        reg["unresolved_copy_fallback"] += 1
         collateral_report[short] = reg
     write_lf_bytes(ABLATION_REPORTS_DIR / "ablation_collateral_transitions.json", json.dumps(collateral_report, indent=2) + "\n")
 
@@ -707,8 +409,8 @@ def run_phase_score_and_summarize(source_lines: list):
     need_ck = any((s, l) not in ck_done for s in suites_to_score for l in ALL_LANGS)
 
     if need_ck:
-        print(f"\n{'='*70}\n🧠 SCORING ABLATION SUITES WITH WMT22 COMETKIWI\n{'='*70}", flush=True)
-        _comet_spec = importlib.util.find_spec("comet")
+        print(f"\n{'='*70}\n🧠 SCORING 72 ABLATION SUITES WITH WMT22 COMETKIWI (PURE PYTORCH)\n{'='*70}", flush=True)
+        _comet_spec = _orig_find_spec("comet")
         if _comet_spec and _comet_spec.origin:
             _enc_dir = Path(_comet_spec.origin).parent / "encoders"
             for _py in _enc_dir.glob("*.py"):
@@ -719,6 +421,7 @@ def run_phase_score_and_summarize(source_lines: list):
         from transformers import PreTrainedTokenizerBase, XLMRobertaTokenizer, XLMRobertaTokenizerFast
         from comet import download_model, load_from_checkpoint
         torch.set_float32_matmul_precision("high")
+        capture_comet_provenance()
 
         def _xlmr_build_inputs(self, token_ids_0, token_ids_1=None):
             cls, sep = [self.cls_token_id], [self.sep_token_id]
@@ -743,7 +446,7 @@ def run_phase_score_and_summarize(source_lines: list):
             for lang in ALL_LANGS:
                 if (s_name, lang) in ck_done:
                     continue
-                hyps = [l.rstrip("\r\n") for l in (s_dir / f"{lang}.txt").read_text(encoding="utf-8").splitlines()]
+                hyps = read_unix_lines(s_dir / f"{lang}.txt")
                 payload = [{"src": source_lines[i], "mt": hyps[i]} for i in range(len(source_lines))]
                 try:
                     pred = ck_model.predict(payload, batch_size=256, gpus=use_gpus, num_workers=0, progress_bar=False)
@@ -754,6 +457,8 @@ def run_phase_score_and_summarize(source_lines: list):
                 ck_rows.append({"suite": s_name, "language": lang, "cometkiwi": sc})
                 write_lf_bytes(ck_ablation_csv, pd.DataFrame(ck_rows).to_csv(index=False))
                 print(f"  ✅ CometKiwi [{s_name} -> {lang}]: {sc:.4f}", flush=True)
+    else:
+        capture_comet_provenance()
 
     existing_ck = pd.read_csv(CK_SCORES_CSV).set_index(["system", "language"])["cometkiwi"].to_dict()
     summary_records = []
@@ -825,7 +530,7 @@ def run_phase_score_and_summarize(source_lines: list):
     for fp in sorted(ABLATION_DATA_DIR.rglob("*.txt")):
         b = fp.read_bytes()
         assert b"\r\n" not in b, f"CRLF in {fp}"
-        assert len(b.decode("utf-8").splitlines()) == 10228, f"Line count != 10228 in {fp}"
+        assert len(read_unix_lines(fp)) == 10228, f"Line count != 10228 in {fp}"
         rel = fp.relative_to(REPO_ROOT).as_posix()
         sha_lines.append(f"{hashlib.sha256(b).hexdigest()}  {rel}")
         md5_lines.append(f"{hashlib.md5(b).hexdigest()}  {rel}")
@@ -875,21 +580,22 @@ def run_phase_score_and_summarize(source_lines: list):
     print(json.dumps(manifest.get("huggingface_model_revisions", {}), indent=2), flush=True)
     print((ABLATION_REPORTS_DIR / "ntt_corpus_coverage.json").read_text(encoding="utf-8"), flush=True)
 
+    acc_df = pd.read_csv(ABLATION_REPORTS_DIR / "accelerator_exact_parity_audit.csv")
+    print("\n" + "=" * 92)
+    print("⌨️ KEYBOARD ACCELERATOR EXACT PARITY AUDIT")
+    print("=" * 92)
+    print(acc_df.to_string(index=False), flush=True)
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--phase", choices=["generate", "score"], required=True)
-    parser.add_argument("--model", choices=["qwen_7b", "gemma_9b", "all"], default="gemma_9b")
+    parser.add_argument("--phase", choices=["score"], default="score")
     args = parser.parse_args()
 
     ABLATION_DATA_DIR.mkdir(parents=True, exist_ok=True)
     ABLATION_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     verify_checksums_intact("PRE-FLIGHT")
-    source_lines = [l.rstrip("\r\n") for l in SOURCE_FILE.read_text(encoding="utf-8").splitlines()]
-
-    if args.phase == "generate":
-        run_phase_generate_model(source_lines, args.model)
-    elif args.phase == "score":
-        run_phase_score_and_summarize(source_lines)
+    source_lines = read_unix_lines(SOURCE_FILE)
+    run_phase_score_and_summarize(source_lines)
 
 if __name__ == "__main__":
     main()

@@ -1480,7 +1480,7 @@ Pilote de connexion à une base de données Kexi
 Suivant
 Autres virements
 Légendes d'images
-Rufiyaa maldivienne
+Rufiyaa des Maldives
 attendez
 Supprimer l'objet
 Entrez un numéro de téléphone :
@@ -8225,7 +8225,7 @@ Médium source
 Correction de date :
 vert
 Schéma de nommage des fichiers
-Please provide the English UI string so I can translate it into French (Français).
+Veuillez fournir la chaîne de l'interface utilisateur en anglais.
 Début anticipé
 Espagnol (Paraguay)
 Arbre de structure du document
@@ -9262,7 +9262,7 @@ Filtrer le journal
 Suppression
 Fader
 Fax professionnel
-BlancAntiqua
+BlancAntique
 Paramètres PPTP
 Allemagne
 Quiz pour %1

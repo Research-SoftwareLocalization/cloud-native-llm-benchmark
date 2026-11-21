@@ -59,5 +59,23 @@
       "igsc_repair_completion_utc": "2026-11-01T08:23:24Z",
       "sampling_temperature": 0.0
     }
+  },
+  "cometkiwi_scoring": {
+    "timestamp_utc": "2026-11-21 07:51:53 UTC",
+    "git_head": "daf2f6fcaf597e12e3a73dda7c04502cc11b61c8",
+    "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+    "python_version": "3.13.16",
+    "cuda_version": "13.0",
+    "gpu_device_name": "NVIDIA A100-SXM4-80GB",
+    "nvidia_smi_detail": "NVIDIA A100-SXM4-80GB, GPU-993105f2-2533-2b7a-6dec-fa22f8e59791, 580.82.07, 81920 MiB, 8.0",
+    "package_versions": {
+      "torch": "2.14.0+cu130",
+      "transformers": "4.57.6",
+      "comet": "2.2.7",
+      "scipy": "1.16.3",
+      "numpy": "1.26.4",
+      "pandas": "2.2.3",
+      "huggingface_hub": "0.36.2"
+    }
   }
 }

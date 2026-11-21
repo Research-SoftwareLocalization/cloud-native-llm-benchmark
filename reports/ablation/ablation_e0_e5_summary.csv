@@ -1,0 +1,13 @@
+model,experiment,configuration,spr_pct,ddr_pct,flawed_segments,ph_halluc,ph_total,script_contam,utf8_corrupt,copy_fallback,cometkiwi,additional_time_s,time_note
+Qwen/Qwen2.5-7B-Instruct,E0,Original zero-shot baseline,94.89,5.11,6266,582,691,328,1343,3933,0.7046,0.0,0.00 (reference)
+Qwen/Qwen2.5-7B-Instruct,E1,Baseline + deterministic verification,94.89,5.11,6266,582,691,328,1343,3933,0.7046,0.38,0.38s (CPU audit only)
+Qwen/Qwen2.5-7B-Instruct,E2,Baseline + dynamic placeholder conditioning (ungated),97.69,2.31,2839,4,39,1720,694,555,0.7078,128.24,128.24s (A100 GPU)
+Qwen/Qwen2.5-7B-Instruct,E3,E2 + script-specific orthographic constraints (ungated),98.3,1.7,2091,1,20,1157,763,368,0.7078,137.64,137.64s (A100 GPU)
+Qwen/Qwen2.5-7B-Instruct,E4,E3 + compound identifier segmentation (ungated),98.46,1.54,1887,1,21,1143,778,140,0.7075,151.21,151.21s (A100 GPU)
+Qwen/Qwen2.5-7B-Instruct,E5,Complete IGSC (E4 + post-repair verification gate),98.46,1.54,1887,31,52,136,541,1167,0.7069,151.21,151.21s (A100 GPU + gate)
+google/gemma-2-9b-it,E0,Original zero-shot baseline,82.17,17.83,21888,0,43,1226,0,20611,0.7395,0.0,0.00 (reference)
+google/gemma-2-9b-it,E1,Baseline + deterministic verification,82.17,17.83,21888,0,43,1226,0,20611,0.7395,0.43,0.43s (CPU audit only)
+google/gemma-2-9b-it,E2,Baseline + dynamic placeholder conditioning (ungated),98.89,1.11,1365,5,66,343,0,951,0.745,479.75,479.75s (A100 GPU)
+google/gemma-2-9b-it,E3,E2 + script-specific orthographic constraints (ungated),99.24,0.76,936,0,15,572,4,345,0.7668,431.83,431.83s (A100 GPU)
+google/gemma-2-9b-it,E4,E3 + compound identifier segmentation (ungated),99.19,0.81,996,0,8,729,4,254,0.7663,511.9,511.90s (A100 GPU)
+google/gemma-2-9b-it,E5,Complete IGSC (E4 + post-repair verification gate),99.19,0.81,996,0,1,109,0,885,0.7653,511.9,511.90s (A100 GPU + gate)

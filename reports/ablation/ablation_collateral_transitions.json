@@ -1,0 +1,24 @@
+{
+  "qwen_7b": {
+    "rejected_candidates_differing_from_e5": 1612,
+    "newly_injected_ph_halluc": 0,
+    "newly_injected_ph_any": 6,
+    "newly_injected_enc_ufffd": 274,
+    "newly_injected_script": 1011,
+    "newly_injected_chatter": 0,
+    "newly_injected_acc": 0,
+    "total_newly_injected_defect_instances": 1304,
+    "unresolved_copy_fallback": 13
+  },
+  "gemma_9b": {
+    "rejected_candidates_differing_from_e5": 724,
+    "newly_injected_ph_halluc": 0,
+    "newly_injected_ph_any": 7,
+    "newly_injected_enc_ufffd": 4,
+    "newly_injected_script": 623,
+    "newly_injected_chatter": 0,
+    "newly_injected_acc": 0,
+    "total_newly_injected_defect_instances": 636,
+    "unresolved_copy_fallback": 2
+  }
+}

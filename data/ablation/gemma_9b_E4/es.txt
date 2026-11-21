@@ -1714,7 +1714,7 @@ Mostrar Avanzado
 Tamaño de pantalla
 Nombre de usuario XAUTH: %1
 Vista de miniatura
-Mejores deseos
+¡Saludos cordiales!
 Soporte de JavaScript
 & ocurrencia(s)
 Estado del enlace KLink - Verificador de enlaces
@@ -4634,7 +4634,7 @@ Usar puerta de enlace
 avión
 Respuesta de la cámara:
 Ajuste de color
-Personalizado & MTU:
+Userdefinido & MTU:
 Lista de canales
 Modo de Intercambio de Claves de Internet
 Matriz de color

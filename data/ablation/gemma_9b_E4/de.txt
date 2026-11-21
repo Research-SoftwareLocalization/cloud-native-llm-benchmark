@@ -602,7 +602,7 @@ Quadrat
 Höchster
 gestrichen
 Projektbaum
-XML-Transformer
+XML; Transformer
 Neuer Haushalt
 & Vorlage:
 Torrent-Dateien
@@ -1011,7 +1011,7 @@ Der Pfad zum Programm "grep"
 kdetv-Panelerweiterung
 Lautstärke aus/leise/laut:
 22,345 Inv IntDiv 8 = auch 2
-Montierpunkt (/mnt/floppy):
+Mountpunkt (/mnt/floppy):
 Keine Seitenränder
 BetriebsEinstellungen
 Engagierende DAO
@@ -3131,7 +3131,7 @@ Zeichenwerkzeug-Dekorationen
 Leistung
 Eigenschaften:
 Suchoptionen
-Arena Name
+Arena-Name
 Bewertung: %1
 Frage - Cantor
 Medienverwaltung
@@ -4152,7 +4152,7 @@ England
 Symbolfarbe:
 Berechnen
 Nicht geladen
-Ausblendendistanz:
+Abschattungsdistanz:
 Beschleunigungsvarianz
 Zusätzliche Route entfernt: %1 über %2 GW %3
 Statistiken...
@@ -9851,7 +9851,7 @@ Ihre Namen
 Ihre E-Mails
 Feedback beim Anwendungsstart Hier können Sie die Feedback-Einstellungen für den Anwendungsstart konfigurieren.
 Warteschleifen-Cursor
-Busy Cursor KDE bietet einen Busy-Cursor für die Anwendungsstartbenachrichtigung. Um den Busy-Cursor zu aktivieren, wählen Sie eine Art visuelle Rückmeldung aus dem Kombinationsfeld. Es kann vorkommen, dass einige Anwendungen diese Startbenachrichtigung nicht erkennen. In diesem Fall stoppt der Cursor nach der Zeit, die im Abschnitt "Startanzeige-Timeout" angegeben ist, mit dem Blinken.
+Busy Cursor KDE bietet einen Busy-Cursor für die Anwendungsstartbenachrichtigung. Um den Busy-Cursor zu aktivieren, wählen Sie eine Art visueller Rückmeldung aus dem Kombinationsfeld. Es kann vorkommen, dass einige Anwendungen diese Startbenachrichtigung nicht erkennen. In diesem Fall stoppt der Cursor nach der Zeit, die im Abschnitt "Startanzeige-Timeout" angegeben ist, mit dem Blinken.
 Keine aktive Markierung
 Passiv-Beschäftigter Cursor
 Blinkender Cursor
@@ -9998,7 +9998,7 @@ Keine Geräte angeschlossen
 Zuletzt angeschlossenes Gerät: %1
 Allgemein
 Versteckte Geräte anzeigen
-Konnte das Gerät nicht unmounten. Eine oder mehrere Dateien auf diesem Gerät sind in einer Anwendung geöffnet.
+Konnte das Gerät nicht unmounten. Mindestens eine Datei auf diesem Gerät ist in einer Anwendung geöffnet.
 Die Scheibe kann nicht ausgeworfen werden. Mindestens eine Datei auf dieser Scheibe ist in einer Anwendung geöffnet.
 Die Festplatte kann nicht eingehängt werden.
 Ausblenden %1
@@ -10145,7 +10145,7 @@ Anti-Alias-Einstellungen konfigurieren
 Bereich ausschließen:
 pt
 zu
-Wenn Sie über einen TFT- oder LCD-Bildschirm verfügen, können Sie die Qualität der angezeigten Schriftarten durch die Auswahl dieser Option weiter verbessern. Sub-Pixel-Rendering ist auch als ClearType(tm) bekannt. Damit Sub-Pixel-Rendering korrekt funktioniert, müssen Sie wissen, wie die Sub-Pixel Ihres Displays ausgerichtet sind. Auf TFT- oder LCD-Bildschirmen besteht ein einzelner Pixel in Wirklichkeit aus drei Sub-Pixeln: Rot, Grün und Blau. Die meisten Displays haben eine lineare Anordnung von RGB-Sub-Pixeln, einige haben BGR. Diese Funktion funktioniert nicht mit CRT-Monitoren.
+Wenn Sie über einen TFT- oder LCD-Bildschirm verfügen, können Sie die Qualität der angezeigten Schriftarten durch Auswahl dieser Option weiter verbessern. Sub-Pixel-Rendering ist auch als ClearType(tm) bekannt. Damit Sub-Pixel-Rendering korrekt funktioniert, müssen Sie wissen, wie die Sub-Pixel Ihres Displays ausgerichtet sind. Auf TFT- oder LCD-Bildschirmen besteht ein einzelner Pixel in Wirklichkeit aus drei Sub-Pixeln: Rot, Grün und Blau. Die meisten Displays haben eine lineare Anordnung von RGB-Sub-Pixeln, einige haben BGR. Diese Funktion funktioniert nicht mit CRT-Monitoren.
 & Verwende Subpixel-Rendering:
 Schriftsstilvorschlag:
 Hinting ist ein Prozess zur Verbesserung der Schriftqualität bei kleinen Schriftgrößen.
@@ -10177,7 +10177,7 @@ Konfigurieren...
 Schriftart-DPI erzwingen:
 96 DPI
 120 DPI
-Diese Option erzwingt einen bestimmten DPI-Wert für Schriftarten. Sie kann hilfreich sein, wenn der tatsächliche DPI-Wert der Hardware nicht korrekt erkannt wird, und wird auch oft missbraucht, wenn Schriften von schlechter Qualität verwendet werden, die mit DPI-Werten abgesehen von 96 oder 120 DPI nicht gut aussehen. Die Verwendung dieser Option wird im Allgemeinen nicht empfohlen. Um einen geeigneten DPI-Wert auszuwählen, ist es besser, ihn explizit für den gesamten X-Server zu konfigurieren, wenn möglich (z. B. DisplaySize in xorg.conf oder das Hinzufügen des -dpi-Wertes zu ServerLocalArgs= in $KDEDIR/share/config/kdm/kdmrc). Wenn Schriften mit dem tatsächlichen DPI-Wert nicht korrekt gerendert werden, sollten bessere Schriften verwendet oder die Konfiguration des Schrift-Hints überprüft werden.
+Diese Option erzwingt einen bestimmten DPI-Wert für Schriftarten. Sie kann hilfreich sein, wenn der tatsächliche DPI-Wert der Hardware nicht korrekt erkannt wird, und wird auch oft missbraucht, wenn Schriften von schlechter Qualität verwendet werden, die mit DPI-Werten abgesehen von 96 oder 120 DPI nicht gut aussehen. Die Verwendung dieser Option wird im Allgemeinen nicht empfohlen. Um einen geeigneten DPI-Wert auszuwählen, ist es besser, ihn explizit für den gesamten X-Server zu konfigurieren, wenn möglich (z. B. DisplaySize in xorg.conf oder das Hinzufügen des -dpi-Werts zu ServerLocalArgs= in $KDEDIR/share/config/kdm/kdmrc). Wenn Schriften mit dem tatsächlichen DPI-Wert nicht korrekt gerendert werden, sollten bessere Schriften verwendet oder die Konfiguration des Schrift-Hints überprüft werden.
 Einige Änderungen, wie z. B. die Anti-Aliasing-Einstellung, wirken sich nur auf neu gestartete Anwendungen aus.
 Schriftseinstellungen geändert
 Einige Änderungen, wie z. B. DPI, wirken sich nur auf neu gestartete Anwendungen aus.
