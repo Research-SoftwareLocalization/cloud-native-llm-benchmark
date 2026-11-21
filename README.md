@@ -87,3 +87,8 @@ Original code, invariant verification scripts, and documentation are released un
   doi={10.5281/zenodo.24280788}
 }
 ```
+
+## Component-Wise IGSC Ablation (E0-E5) & Subset-Level Blindness Diagnostics
+
+- **Component-Wise Ablation Runner (`E0`-`E5`):** `python scripts/run_ablation_e0_e5.py --phase all` (outputs in `data/ablation/` and `reports/ablation/ablation_e0_e5_summary.csv`, checksums in `reports/ablation/CHECKSUMS_ABLATION_SHA256.txt`).
+- **5-Model Verification-Gate & Active-Defect Subset QE Audit:** `python scripts/run_extended_blindness_and_gate_audit.py --phase subset_qe` (outputs `five_model_gate_ablation_e4_vs_e5.csv`, `defect_subset_cometkiwi_by_model.csv`, `defect_subset_cometkiwi_by_category.csv`, and `table9_ci_holm_bonferroni.csv`).

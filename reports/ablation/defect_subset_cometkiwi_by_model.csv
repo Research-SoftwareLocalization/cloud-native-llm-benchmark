@@ -1,0 +1,6 @@
+model,total_defective_D,verified_repaired_count,defect_density_rho_pct,subset_D_base_ck,subset_D_igsc_ck,subset_D_delta_QE,repaired_only_base_ck,repaired_only_igsc_ck,repaired_only_delta_QE,predicted_corpus_shift_rho_x_delta
+google/gemma-2-9b-it,21888,20892,17.83,0.582,0.7271,0.1451,0.5805,0.7326,0.152,0.0259
+mistralai/Mistral-Nemo-Instruct-2407,10883,10578,8.87,0.4339,0.7321,0.2982,0.4298,0.7366,0.3068,0.0264
+Qwen/Qwen2.5-7B-Instruct,6266,4379,5.11,0.5875,0.6317,0.0442,0.5842,0.6475,0.0633,0.0023
+meta-llama/Llama-3.1-8B-Instruct,3008,2859,2.45,0.5501,0.747,0.197,0.5433,0.7505,0.2073,0.0048
+gpt-4o-mini-2024-07-18,1169,902,0.95,0.7072,0.7058,-0.0014,0.694,0.6923,-0.0018,-0.0

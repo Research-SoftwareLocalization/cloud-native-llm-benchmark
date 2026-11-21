@@ -1,0 +1,6 @@
+model,e0_baseline_flawed,e4_ungated_flawed,e5_gated_flawed,rejected_candidates_blocked_by_gate,newly_injected_defect_instances_blocked,new_script_leaks_blocked,new_utf8_ufffd_blocked,new_placeholder_bugs_blocked,new_chatter_blocked,e4_script_contam,e5_script_contam,e4_utf8_corrupt,e5_utf8_corrupt,e4_ph_errors,e5_ph_errors,e4_copy_fallback,e5_copy_fallback
+google/gemma-2-9b-it,21888,996,996,724,636,623,4,7,0,729,109,4,0,8,1,254,885
+mistralai/Mistral-Nemo-Instruct-2407,10883,305,305,183,140,74,0,0,2,74,0,0,1,51,141,176,161
+Qwen/Qwen2.5-7B-Instruct,6266,1887,1887,1612,1304,1011,274,6,0,1143,136,778,541,21,52,140,1167
+meta-llama/Llama-3.1-8B-Instruct,3008,149,149,74,29,7,0,11,0,7,0,1,1,50,52,84,89
+gpt-4o-mini-2024-07-18,1169,267,267,15,0,0,0,0,0,31,31,0,0,4,4,232,232

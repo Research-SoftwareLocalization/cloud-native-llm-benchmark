@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this benchmark dataset, invariant verifier, or self-correction code, please cite our paper."
-title: "Invariant-Guided Self-Correction for Cloud-Native Software Localization Pipelines: A 1.22-Million-Segment LLM Benchmark and Dual-Paradigm Evaluation Across High-Resource and Low-Resource Languages"
+title: "Invariant-Guided Self-Correction for Reliable LLM-Based Software Localization: A Large-Scale Multilingual Benchmark and Evaluation"
 type: dataset
 authors:
   - family-names: Sharma

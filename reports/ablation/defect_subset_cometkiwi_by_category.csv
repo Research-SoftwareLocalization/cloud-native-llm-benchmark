@@ -1,0 +1,12 @@
+defect_category,total_segments,repaired_segments,flawed_mean_ck_all,igsc_mean_ck_all,mean_delta_ck_all,repaired_only_flawed_ck,repaired_only_igsc_ck,repaired_only_delta_ck,pct_flawed_scored_above_075
+copy_fallback_indic,24060,22464,0.5692,0.7143,0.145,0.5696,0.725,0.1554,17.3
+ph_hallucination,11932,11802,0.439,0.7293,0.2902,0.4393,0.7327,0.2934,1.5
+copy_fallback_european_latin,1795,1108,0.7141,0.7367,0.0226,0.6728,0.7094,0.0367,58.9
+copy_fallback_ar_ja_zh,1789,1538,0.5869,0.6906,0.1037,0.5922,0.7128,0.1206,22.8
+utf8_ufffd_corruption,1347,808,0.5635,0.6022,0.0387,0.555,0.6195,0.0645,13.7
+script_foreign_leak,1109,872,0.7638,0.7474,-0.0164,0.7668,0.746,-0.0209,67.9
+script_digraphic_punjabi,510,477,0.7561,0.7494,-0.0066,0.7542,0.7471,-0.0071,66.1
+ph_omission,409,352,0.5409,0.6691,0.1282,0.5393,0.6883,0.149,8.6
+ph_mutation,238,175,0.5382,0.6529,0.1148,0.5701,0.7261,0.1561,18.5
+broken_accelerator,21,12,0.6709,0.6778,0.0069,0.6808,0.6929,0.0121,4.8
+conversational_chatter,4,2,0.4757,0.5935,0.1178,0.5429,0.7785,0.2356,0.0
